@@ -21,7 +21,8 @@ In many ways, the Arches Data Model has been completely re-imagined in v4. This 
     + [Resource Instance Data](#resource-class-data)
 2. [Overlays](#overlay-models)
 3. [RDM (Reference Data Manager)](#rdm-models)
-4. [Edit Log](#edit-log)
+4. [Ontologies](#ontologies)
+5. [Edit Log](#edit-log)
 
 [I'm thinking it may make sense to break ontologies out into a separately numbered category. Right now they are described in the graph definition section. -AC]
 
@@ -259,6 +260,10 @@ class Value(models.Model):
         managed = True
         db_table = 'values'		
 ```
+
+## Ontologies
+
+Andien eindd
 
 ## Overlay Models
 
