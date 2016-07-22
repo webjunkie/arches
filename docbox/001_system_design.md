@@ -46,10 +46,6 @@ NodeGroups can be a single Node or many Nodes. A basic example of a NodeGroup wo
 
 Nodegroups are used to create Cards (see [below](#resource-class-ui-components), and this is done based on the cardinality property. Therefore, not every nodegroup will be used to create a card, which allows nodegroups to exist within other nodegroups. The `parentnodegroup` property is used to create this nesting.
 
-Ontologies are enforced on GraphModel instances. An ontology is a schema that standardizes a set of node classes and edge classes, with restrictions on which nodes can be connected to each other, and which edges can connect them. Therefore, nodes not only define the fields of data (attributes) for resource classes, but also the semantic "glue nodes" that do not store business data but are required to meet ontology rules.
-
-By default, Aches uses the [CIDOC CRM](http://www.cidoc-crm.org/), an ontology created by ICOM (International Council of Museums) to model cultural heritage documentation. However, a user may decide to create a graph that has no ontology constraints, or may create and load an entirely new ontology. Once an ontology is chosen for a graph instance, all nodegroups within that graph must conform to it. The `Ontology` and `OntologyClass` models are not shown here, but you can find them in the full data model above.
-
 Validation instances handle base-level data validations that will be applied at the graph level.  For example, `isrequired` will be an example of a validation, which would return false if a given node is left empty. This is distinct from the concept of Functions which are applied at the UI level for more superficial validation.
 
 [In the current visual data model, I don't actually see where validations are connected to nodes.  -AC]
@@ -183,9 +179,23 @@ Three models are used to store the actual resource data:
 
 Creating a new resource in the database instantiates a new ResourceInstance, which belongs to one resource class and has a unique `resourceinstanceid`. A resource instance may also have its own security/permissions properties in order to allow a fine-grained level of user-based permissions. [This is preliminary, as I don't thinkthe permissions systems have been fully implemented yet. -AC]
 
-Once data have been captured, they are stored as "tiles" in the database. Each tile stores **one instance of all of the attributes of a given nodegroup for a resource instance**, as referenced by the `resourceinstanceid`. This business data is stored as a JSON object, with key/value pairs defining node.name (from the nodes table) and the value associated with the node. Note that all business data are stored within this JSON object; there are no separate database columns for dates, text, or geometry business data.
+Once data have been captured, they are stored as "tiles" in the database. Each tile stores one instance of all of the attributes of a given NodeGroup for a resource instance, as referenced by the `resourceinstanceid`. This business data is stored as a JSON object, which is a dictionary with n number of keys/value pairs that represent a Node's id `nodeid` and that Node's value. For example:
 
-Arches allows for the creation of relationships between resources, and these are stored as instances of the ResourceXResource model. The `relationshiptype` must correspond to the appropriate top node in the RDM. This constrains the list of available types of relationships available between resource instances.
+```
+    {
+        nodeid: "node value",
+        nodeid: "node value"
+    }
+```
+or
+```
+    {
+        "20000000-0000-0000-0000-000000000002": "John",
+        "20000000-0000-0000-0000-000000000004": "Primary"
+    }
+```
+
+Arches also allows for the creation of relationships between resource instances, and these are stored as instances of the ResourceXResource model. The `relationshiptype` must correspond to the appropriate top node in the RDM. This constrains the list of available types of relationships available between resource instances.
 
 ```python
 class ResourceInstance(models.Model):
@@ -263,12 +273,63 @@ class Value(models.Model):
 
 ## Ontologies
 
-Andien eindd
+An ontology standardizes a set of valid CRM (Conceptual Reference Model) classes for Node instances, as well as a set of relationships that will define Edge instances. Most importantly, an ontology enforces which Edges can be used to connect which Nodes. If a pre-loaded ontology is designated for a GraphModel instance, every NodeGroup within that GraphModel must conform to that ontology. You may also create an "ontology-less" graph, which will not define specific CRM classes for the Nodes and Edges.
 
-extra test content
+These rules are stored as OntologyClass instances, which are stored as JSON. These JSON objects consist of dictionaries with two properties, `down` and `up`, each of which contains another two properties `ontology_property` and `ontology_classes` (`down` assumes a known domain class, while `up` assumes a known range class).
 
-ontologies aneinfg
+```
+"down":[
+    {
+        "ontology_property": "P1_is_identified_by",
+        "ontology_classes": [
+            "E51_Contact_Point",
+            "E75_Conceptual_Object_Appellation",
+            "E42_Identifier",
+            "E45_Address",
+            "E41_Appellation",
+            ....
+        ]
+    }
+]
+"up":[
+        "ontology_property": "P1i_identifies",
+        "ontology_classes": [
+            "E51_Contact_Point",
+            "E75_Conceptual_Object_Appellation",
+            "E42_Identifier"
+            ....
+        ]
+    }
+]
+```
 
+Aches comes preloaded with the [CIDOC CRM](http://www.cidoc-crm.org/), which is an ontology created by ICOM (International Council of Museums) to model cultural heritage documentation. However, a user may create and load an entirely new ontology.
+
+
+```python
+class Ontology(models.Model):
+    ontologyid = models.UUIDField(default=uuid.uuid1, primary_key=True)
+    name = models.TextField()
+    version = models.TextField()
+    path = models.FileField(storage=get_ontology_storage_system())
+    parentontology = models.ForeignKey('Ontology', db_column='parentontologyid', related_name='extensions', null=True, blank=True)
+    class Meta:
+        managed = True
+        db_table = 'ontologies'
+```
+
+```python
+class OntologyClass(models.Model):
+    ontologyclassid = models.UUIDField(default=uuid.uuid1, primary_key=True)
+    source = models.TextField()
+    target = JSONField(null=True)
+    ontology = models.ForeignKey('Ontology', db_column='ontologyid', related_name='ontologyclasses')
+    class Meta:
+        managed = True
+        db_table = 'ontologyclasses'
+        unique_together=(('source', 'ontology'),)
+```
+    
 ## Overlay Models
 
 The three tables in this category are a place to store data that may be served to Arches as an overlay. There is no direct interaction (or requirement by) the Arches application for these tables to be populated. They exist in case a user wants to have readily available information such as parcels, address, or administrative boundaries to visualize and/or search by. The overlays table stores GIS data that supports the capability described [here](https://arches-hip.readthedocs.org/en/latest/loading-data/#optional-gis-layers-for-administrative-areas).
