@@ -1,16 +1,5 @@
 # System Design
 
-## System Architecture
-Arches is based on Django and uses Postgres/PostGIS for its database backend. Unlike v3, v4 now stores all business data as [Tile](#resource-class-data) instances, which are JSON objects in the Postgres database; PostGIS is now only used for auxiliary overlay tables.
-
-![Arches Architecture](img/system-architecture.png)
-
-Each Arches installation includes its own instance of ElasticSearch that resides within the app itself. ElasticSearch is extremely fast and very flexible, allowing adjacent Arches apps to either share clusters or operate completely independent of each other.
-
-In development, the Django webserver can be used to view Arches through a browser. In production, a real webserver (like Apache or nginx) must be used.
-
-[I know all of the distribution architecture hasn't been fully decided, so this can be filled out more and modified at a later date -AC 7/15]
-
 ## Data Model Overview
 
 In many ways, the Arches Data Model has been completely re-imagined in v4. This was necessary to support the new [Resource Manager](#resource-manager) user interface, which allows you to create and configure resource classes within the app itself. Arches' models can now be split into four general categories:
