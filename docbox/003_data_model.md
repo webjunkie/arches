@@ -2,45 +2,62 @@
 
 ## Overview
 
-In many ways, the Arches Data Model has been completely re-imagined in v4. This was necessary to support the new [Resource Manager](#resource-manager) user interface, which allows you to create and configure resource classes within the app itself. Arches' models can now be split into four general categories:
+In many ways, the Arches Data Model has been completely re-imagined in v4. This was necessary to support the new [Resource Manager](#resource-manager) user interface, which allows you to create and configure resource classes within the app itself. Arches models can now be split into four general categories:
 
 1. [Resource Class-Related Models](#resource-class-overview)
     + [Graph Definition](#graph-definition)
     + [UI Component Models](#resource-class-ui-components)
     + [Resource Instance Data](#resource-class-data)
-2. [Overlays](#overlay-models)
+2. [Overlay](#overlay-models)
 3. [RDM (Reference Data Manager)](#rdm-models)
 4. [Ontologies](#ontologies)
-5. [Edit Log](#edit-log)
+5. [The Edit Log Model](#edit-log)
 
-These categories are described in the following sections, as well code snippets for the most important logical models in each one. For a complete picture, click the image below to enlarge the full visual data model.
+These categories are described in the following sections, and code snippets are included for the most important logical models in each category. (To view the code snippets, select Python as the language at the top of this page.) For a complete picture, click the image below to enlarge the full visual data model.
 
 [![full data model](img/data-model.png)](http://archesproject.github.io/docs/img/data-model.png)
 
 ## Resource Class Overview
 
-Resources in an Arches database are separated into distinct resource "classes" (not to be confused with Python classes!), and Arches v4 allows users to create and modify resource classes within the app interface itself, in the Resource Manager. To support these capabilities, resource classes are defined with modular components that can be re-used throughout the system.
+Resources in an Arches database are separated into distinct resource "classes" (not to be confused with Python classes!), and Arches v4 allows users to create and modify resource classes within the app interface itself, using the Resource Manager. To support these capabilities, resource classes are defined with modular components that can be re-used throughout the system.
 
 The three basic components of a resource class are a graph, a set of data entry forms, and a report. In the Arches interface, each of these components comprise various sub-components, as illustrated below.
 
 ![resource class](img/resource-class-full.png)
 
-The Arches logical model has been developed to support this modular construction, and the relevant models are described below as they pertain to the graph, forms (UI components), and the resource data itself (not illustrated above) [though perhaps it should be... -AC].
+The Arches logical model has been developed to support this modular construction, and the relevant models are described below as they pertain to the graph, forms (UI components), and the resource data itself (not illustrated above) [though perhaps it should be? -AC].
 
 ### Graph Definition
 
-Graphs are collections of NodeGroups, which are themselves collections of Nodes. All Nodes and NodeGroups are connected to each other by Edges. NodeGroups allow for a modular approach to creating resource graphs, as a NodeGroup can easily be copied from one graph to another.
+A resource's graph is defined as a collection of GraphModel instances. In the UI, these GraphModels are listed in the Graph Library. Each GraphModel is a collection of NodeGroups, which are themselves collections of Nodes. All Nodes and NodeGroups are connected to each other by Edges. GraphModels allow for a modular approach to creating resource graphs, as a GraphModel can easily be copied from one graph to another.
 
-NodeGroups can be a single Node or many Nodes. A basic example of a NodeGroup `E1_NAME` and `E55_NAME_TYPE`. In this case, each `E1_NAME` must be paired with a `E55_NAME_TYPE`, thereby necessitating a group in order to support multiple name/name_type combos associated with a given resource instance. In other words, NodeGroup represents the logical model-level requirement that certain sets of nodes must be grouped together to retain meaning.
+NodeGroups can be a single Node or many Nodes. A basic example of a NodeGroup would be `E1_NAME` and `E55_NAME_TYPE`. In this case, each `E1_NAME` must be paired with a `E55_NAME_TYPE`, thereby necessitating a group in order to support multiple name/name_type combos associated with a given resource instance. In other words, NodeGroup represents the logical model-level requirement that certain sets of nodes must be grouped together to retain meaning.
 
-Nodegroups are used to create Cards (see [below](#resource-class-ui-components), and this is done based on the `cardinality` property. Therefore, not every nodegroup will be used to create a card, which allows nodegroups to exist within other nodegroups. The `parentnodegroup` property is used to record this nesting.
+Nodegroups are used to create Cards (see [below](#resource-class-ui-components), and this is done based on the `cardinality` property. Therefore, not every NodeGroup will be used to create a Card, which allows NodeGroups to exist within other NodeGroups. The `parentnodegroup` property is used to record this nesting.
 
 Validation instances handle base-level data validations that will be applied at the graph level.  For example, `isrequired` will be an example of a validation, which would return false if a given node is left empty. This is distinct from the concept of Functions which are applied at the UI level for more superficial validation.
 
-[In the current visual data model, I don't actually see where validations are connected to nodes.  -AC]
+[In the visual data model I have above, I don't actually see where validations are connected to nodes.  -AC]
 
-Not shown here is the definition of the GraphModel class, one of which would be associated with each resource class, and to which all descendant NodeGroups are attached.
-
+```python
+class GraphModel(models.Model):
+    graphid = models.UUIDField(primary_key=True, default=uuid.uuid1)
+    name = models.TextField(blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    deploymentfile = models.TextField(blank=True, null=True)
+    author = models.TextField(blank=True, null=True)
+    deploymentdate = models.DateTimeField(blank=True, null=True)
+    version = models.TextField(blank=True, null=True)
+    isresource = models.BooleanField()
+    isactive = models.BooleanField()
+    iconclass = models.TextField(blank=True, null=True)
+    subtitle = models.TextField(blank=True, null=True)
+    ontology = models.ForeignKey('Ontology', db_column='ontologyid', related_name='graphs', null=True, blank=True)
+    class Meta:
+        managed = True
+        db_table = 'graphs'
+```
+        
 ```python
 class NodeGroup(models.Model):
     nodegroupid = models.UUIDField(primary_key=True, default=uuid.uuid1)  # This field type is a guess.
@@ -93,20 +110,18 @@ class Validation(models.Model):
 
 ### UI Component Models
 
-A number of models exist specifically to support the resource class UI. The purpose of this is to create direct relationships between the graph and the data entry forms that are used to create resource instances. Generally, the process works like this:
+A number of models exist specifically to support the resource class UI. The purpose of this is to create direct relationships between the resource graph and the data entry forms that are used to create resource instances. Generally, the process works like this:
 
-1. The graph is made of NodeGroups instances that define what information will be gathered for a given resource class.
-2. The forms are made of Cards that are tied to specific NodeGroups and define which input Widgets will be used to gather values for each Node.
-
-[ 3. describing how tiles are created per node group may have a place in this list... -AC]
+1. A resource graph is an organized collection NodeGroups which define what information will be gathered for a given resource class.
+2. A resource's data entry forms are made of Cards that are tied to specific NodeGroups and define which input Widgets will be used to gather values for each Node in that NodeGroup.
 
 ![graph and form](img/graph-forms.png)
 
-Each resource class has any number of Forms attached to it, which are meant to thematically categorize sets of data entry UI. Forms are made up of one or more Cards. Cards are UI representations of a NodeGroup, and they encapsulate the Widgets that facilitate data entry for each Node in a given NodeGroup instance.
+Each resource class has any number of Form instances attached to it, which are meant to thematically categorize sets of data entry. Forms are made up of one or more Cards. Cards are UI representations of a NodeGroup, and they encapsulate the Widgets that facilitate data entry for each Node in a given NodeGroup instance.
 
-While a Card will only handle data entry for a single NodeGroup (which may have many Nodes or children NodeGroups), a single NodeGroup can be handled by more than one Card. This allows a NodeGroup to be represented on one Card in the web app, and in a different Card in the mobile app. Like a NodeGroup, a Card may be nested within a parent Card, which is necesary in the case of wizards/card groups. [does it look too insane to capitalize any occurance of a model in the text? feels very german. -AC]
+While a Card will only handle data entry for a single NodeGroup (which may have many Nodes or children NodeGroups), a single NodeGroup can be handled by more than one Card. This allows a NodeGroup to be represented on one Card in the web app, and in a different Card in the mobile app. Like a NodeGroup, a Card may be nested within a parent Card, which is necessary in the case of wizards/card groups. These nested cards are called "sub-cards" in the Resource Manager interface.
 
-Functions serve to apply logic dictating data validation or UI behavior based on some data entry event. Functions will, for example, call validations asynchronously to alert users of invalid data that has been entered to a form.  They may also serve to hide or expose certain cards or forms based on data that has been populated into a widget. A Function instance can be used on any combination of Card, Node, and Widget instances.
+Function instances serve to apply logic dictating data validation or UI behavior based on some data entry event. Functions will, for example, call validations asynchronously to alert users of invalid data that has been entered to a form. They may also serve to hide or expose certain Cards or Forms based on data that has been populated through a Widget. A Function instance can be used on any combination of Card, Node, and Widget instances.
 
 ```python
 class Form(models.Model): 
@@ -166,9 +181,9 @@ Three models are used to store Arches business data:
 + Tile - stores all business data
 + ResourceXResource - records relationships between resource instances
 
-Creating a new resource in the database instantiates a new ResourceInstance, which belongs to one resource class and has a unique `resourceinstanceid`. A resource instance may also have its own security/permissions properties in order to allow a fine-grained level of user-based permissions. [This is preliminary, as I don't thinkthe permissions systems have been fully implemented yet. -AC]
+Creating a new resource in the database instantiates a new ResourceInstance, which belongs to one resource class and has a unique `resourceinstanceid`. A resource instance may also have its own security/permissions properties in order to allow a fine-grained level of user-based permissions. [THIS IS PRELIMINARY, AS I DON'T THINK THE FINAL PERMISSIONS SYSTEMS HAVE BEEN CREATED. -AC]
 
-Once data have been captured, they are stored as "tiles" in the database. Each tile stores one instance of all of the attributes of a given NodeGroup for a resource instance, as referenced by the `resourceinstanceid`. This business data is stored as a JSON object, which is a dictionary with n number of keys/value pairs that represent a Node's id `nodeid` and that Node's value.
+Once data have been captured, they are stored as Tiles in the database. Each Tile stores one instance of all of the attributes of a given NodeGroup for a resource instance, as referenced by the `resourceinstanceid`. This business data is stored as a JSON object, which is a dictionary with n number of keys/value pairs that represent a Node's id `nodeid` and that Node's value.
 
 in theory:
 
@@ -178,15 +193,15 @@ in theory:
         nodeid: "node value"
     }
 ```
-or in practice:
+in practice:
 ```
     {
-        "20000000-0000-0000-0000-000000000002": "John",
-        "20000000-0000-0000-0000-000000000004": "Primary"
+        "20000000-0000-0000-0000-000000000002": "John", # an E1_NAME node
+        "20000000-0000-0000-0000-000000000004": "Primary" # an E55_NAME_TYPE node
     }
 ```
 
-Arches also allows for the creation of relationships between resource instances, and these are stored as instances of the ResourceXResource model. The `resourceinstanceidfrom` and `resourceinstanceidto` fields make the relationship, and to qualify the relationship `relationshiptype` must correspond to the appropriate top node in the RDM. This constrains the list of available types of relationships available between resource instances.
+Arches also allows for the creation of relationships between resource instances, and these are stored as instances of the ResourceXResource model. The `resourceinstanceidfrom` and `resourceinstanceidto` fields create the relationship, and `relationshiptype` qualifies the relationship. The latter must correspond to the appropriate top node in the RDM. This constrains the list of available types of relationships available between resource instances.
 
 ```python
 class ResourceInstance(models.Model):
@@ -229,7 +244,7 @@ class ResourceXResource(models.Model):
 
 The RDM (Reference Data Manager) stores all of the vocabularies used in your Arches installation. Whether they are simple wordlists or a polyhierarchical thesauri, these vocabularies are stored as "concept schemes" and can be viewed as an aggregation of one or more concepts and the semantic relationships (links) between those concepts.
 
-In the data model, a concept scheme consists of a set of Concept instances, each paired with a Value, and all related to each other as defined by a series of Relation instances. As such, instead of storing "Chimney" as the value for a component type, a node may instead store a Concept, whose value is "Chimney". This allows for concept to have alternative labels and support multiple languages.
+In the data model, a concept scheme consists of a set of Concept instances, each paired with a Value. In our running name/name_type example, the `E55_NAME_TYPE` Node would be linked to a Concept (`E55_NAME_TYPE`) which would have two child Concepts. Thus, where the user sees a dropdown containing "Primary" and "Alternate", these are actually the Values of `E55_NAME_TYPE`'s two descendent Concepts. The parent/child relationships between Concepts are stored as Relation instances.
 
 ```python
 class Concept(models.Model):
@@ -327,25 +342,6 @@ class OntologyClass(models.Model):
 
 The three tables in this category are a place to store data that may be served to Arches as an overlay. There is no direct interaction (or requirement by) the Arches application for these tables to be populated. They exist in case a user wants to have readily available information such as parcels, address, or administrative boundaries to visualize and/or search by. The overlays table stores GIS data that supports the capability described [here](https://arches-hip.readthedocs.org/en/latest/loading-data/#optional-gis-layers-for-administrative-areas).
 
-<!--
-| Address                 |
-| ------ | ----------- |
-| addressid | Auto |
-| addressnum | text |
-| edittype | text |
-| newvalue | text |
-| note | text 
-| oldvalue | text |
-| resourceclassid | text |
-| resourceinstanceid | text |
-| tileinstanceid | text |
-| timestamp | date |
-| userid | text |
-| user_firstname | text |
-| user_lastname | text |
-| user_email | text |
--->
-
 ```python
 class Address(models.Model):
     addressesid = models.AutoField(primary_key=True)
@@ -384,8 +380,9 @@ class Overlay(models.Model):
 
 ## Edit Log
 
-A change in a tile (i.e. any change to a resource instance) is recorded as an instance of the EditLog model.
+A change in a Tile's contents, which is the result of any resource edits, is recorded as an instance of the EditLog model.
 
+<!-- UNUSED EXAMPLE OF DISPLAYING THE CLASS AS A .md TABLE -->
 <!--
 | editlogid | UUID |
 | ------ | ----------- |
@@ -430,6 +427,8 @@ class EditLog(models.Model):
 ---
 
 ## ORIGINAL CONTENT
+
+[LEAVING THIS HERE FOR NOW IN CASE WE NEED TO REFER BACK TO IT. 8-5-16 AC]
 
 nodegroups - defines the sets of nodes that should be saved in a single tile record.  For example, NAME and NAME_TYPE.  Recursive relationship supports the ability to create nodegroups within nodegroups i.e. sub-branches of condition assessment.
 
