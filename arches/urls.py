@@ -20,7 +20,7 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.conf.urls.i18n import patterns
-from arches.app.views import concept, entity, main, map, resources, search, config, graph
+from arches.app.views import concept, entity, main, map, resources, search, config, graph, reconcile
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -74,6 +74,7 @@ urlpatterns = [
     url(r'^card/(?P<cardid>%s|())$' % uuid_regex, graph.card, name='card'),
     url(r'^node/(?P<graphid>%s)$' % uuid_regex, graph.node, name='node'),
     url(r'^test/(?P<graphid>%s)$' % uuid_regex, graph.test, name='test'),
+    url(r'^reconcile', reconcile.reconcile, name='reconcile'),
 
     url(r'^widgets/(?P<template>[a-zA-Z_-]*)', main.widget, name="widgets"),
 
