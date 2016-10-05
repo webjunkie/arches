@@ -43,6 +43,11 @@ install:
   - python setup.py install
   - pip install -r arches/install/requirements_dev.txt
   - pip install coveralls
+  - touch arches/settings_local.py
+  - echo "MAPBOX_API_KEY = os.environ.get('MAPBOX_API_KEY')" >> arches/settings_local.py
+  - echo "BING_API_KEY = os.environ.get('BING_API_KEY')" >> arches/settings_local.py
+  - echo "MAPZEN_API_KEY = os.environ.get('MAPZEN_API_KEY')" >> arches/settings_local.py
+  - echo "GEOCODING_PROVIDERS = [{'name': 'Bing', 'api_key': BING_API_KEY, 'id':'BingGeocoder'},{'name': 'MapZen', 'api_key':MAPZEN_API_KEY, 'id':'MapzenGeocoder'},]" >> arches/settings_local.py
 
 script:
   - python manage.py test tests --pattern="*.py" --settings="tests.test_settings"

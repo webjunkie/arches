@@ -96,16 +96,6 @@ GOOGLE_ANALYTICS_TRACKING_ID = None
 # from http://django-guardian.readthedocs.io/en/stable/configuration.html#anonymous-user-name
 ANONYMOUS_USER_NAME = None
 
-# these are set in Travis CI
-MAPBOX_API_KEY = os.environ.get('MAPBOX_API_KEY')
-BING_API_KEY = os.environ.get('BING_API_KEY')
-MAPZEN_API_KEY = os.environ.get('MAPZEN_API_KEY')
-
-GEOCODING_PROVIDERS = [
-    {'name': 'Bing', 'api_key': BING_API_KEY, 'id':'BingGeocoder'},
-    {'name': 'MapZen', 'api_key':MAPZEN_API_KEY, 'id':'MapzenGeocoder'},
-    ]
-
 def RESOURCE_TYPE_CONFIGS():
     return {
         # override this setting in your packages settings.py file
@@ -129,6 +119,11 @@ def RESOURCE_TYPE_CONFIGS():
         #     'sort_order': 1
         # },
     }
+
+GEOCODING_PROVIDERS = [
+    {'name': 'MapZen', 'api_key':'', 'id':'MapzenGeocoder'},
+    {'name': 'Bing', 'api_key':'', 'id':'BingGeocoder'},
+    ]
 
 
 EXPORT_CONFIG = ''
@@ -355,6 +350,8 @@ BUSISNESS_DATA_FILES = (
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
 )
+
+MAPBOX_API_KEY = '' # Put your Mapbox key here!
 
 try:
     from settings_local import *
