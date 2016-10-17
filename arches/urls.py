@@ -77,6 +77,9 @@ urlpatterns = [
     url(r'^reconcile', reconcile.reconcile, name='reconcile'),
 
     url(r'^widgets/(?P<template>[a-zA-Z_-]*)', main.widget, name="widgets"),
+    url(r'^report-templates/(?P<template>[a-zA-Z_-]*)', main.report_templates, name="report-templates"),
+    url(r'^tile', TileData.as_view(), name="tile"),
+    url(r'^reconcile', reconcile.reconcile, name='reconcile'),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
