@@ -50,11 +50,9 @@ def load_authority_files(source=None, break_on_error=True):
 
             file_list.sort()
 
-            # auth_file_to_entity_concept_mapping = entitytype_to_auth_doc_mapping(cursor, path)
-            auth_file_to_entity_concept_mapping = []
             count = 1
             for file_name in file_list:
-                errors = errors + load_authority_file(cursor, path, file_name, auth_file_to_entity_concept_mapping)
+                errors = errors + load_authority_file(cursor, path, file_name)
                 if count > 10:
                     pass
                     #break
@@ -77,7 +75,7 @@ def is_uuid(uuid):
     result =  [len(x) for x in uuid_split] == uuid_pattern
     return result
 
-def load_authority_file(cursor, path_to_authority_files, filename, auth_file_to_entity_concept_mapping):
+def load_authority_file(cursor, path_to_authority_files, filename):
     print filename.upper()
 
     start = time()
@@ -103,7 +101,7 @@ def load_authority_file(cursor, path_to_authority_files, filename, auth_file_to_
         collector_concept.nodetype = 'Collection'
         collector_concept.legacyoid = auth_doc_file_name.split('.')[0]
         collector_concept.addvalue({'value':display_file_name, 'language': settings.LANGUAGE_CODE, 'type': 'prefLabel', 'category': 'label'})
-        collector_concept.save()
+        lookups.add_lookup(concept=collector_concept, rownum=0)
         lookups.add_relationship(source='00000000-0000-0000-0000-000000000003', type='hasCollection', target=collector_concept.id)
 
     else:
@@ -137,15 +135,14 @@ def load_authority_file(cursor, path_to_authority_files, filename, auth_file_to_
 
                         parent_concept_id = lookups.get_lookup(legacyoid=row[u'PARENTCONCEPTID']).id
                         lookups.add_relationship(source=parent_concept_id, type='narrower', target=concept.id, rownum=rows.line_num)
-                        # don't add a member relationship between a top concept and it's children
-                        # if parent_concept_id != top_concept.id:
-                        lookups.add_relationship(source=parent_concept_id, type='member', target=concept.id, rownum=rows.line_num)
 
-                        # add the member relationship from the authority document collector concept
-                        if row[u'PARENTCONCEPTID'] == auth_doc_file_name and auth_doc_file_name != 'ARCHES RESOURCE CROSS-REFERENCE RELATIONSHIP TYPES.E32.csv':
-                            authdoc_concept = Concept()
-                            authdoc_concept.get(legacyoid=auth_doc_file_name.split('.')[0])
-                            lookups.add_relationship(source=authdoc_concept.id, type='member', target=concept.id, rownum=rows.line_num)
+                        if parent_concept_id == top_concept.id:
+                            # don't add a member relationship between a top concept and it's children, instead
+                            # add the member relationship from the authority document collector concept 
+                            lookups.add_relationship(source=collector_concept.id, type='member', target=concept.id, rownum=rows.line_num)
+                        else:
+                            lookups.add_relationship(source=parent_concept_id, type='member', target=concept.id, rownum=rows.line_num)
+
 
                         if row[u'PARENTCONCEPTID'] == '' or (row[u'CONCEPTTYPE'].upper() != 'INDEX' and row[u'CONCEPTTYPE'].upper() != 'COLLECTOR'):
                             raise Exception('The row has invalid values.')
@@ -209,7 +206,8 @@ def load_authority_file(cursor, path_to_authority_files, filename, auth_file_to_
         except Exception as e:
             errors.append('ERROR in row %s (%s):\n%s\n' % (lookups.lookup[key]['rownum'], str(e), traceback.format_exc()))
 
-        lookups.lookup[key]['concept'].index(scheme=top_concept)
+        if lookups.lookup[key]['concept'].nodetype == 'Concept':
+            lookups.lookup[key]['concept'].index(scheme=top_concept)
 
     # insert the concept relations
     for relation in lookups.concept_relationships:
@@ -230,33 +228,3 @@ def load_authority_file(cursor, path_to_authority_files, filename, auth_file_to_
     #print 'Time to parse = %s' % ("{0:.2f}".format(time() - start))
 
     return errors
-
-def entitytype_to_auth_doc_mapping(cursor, path_to_authority_files):
-    filepath = os.path.join(path_to_authority_files, 'ENTITY_TYPE_X_ADOC.csv')
-    errors = []
-    ret = {}
-    with open(filepath, 'rU') as f:
-        rows = unicodecsv.DictReader(f, fieldnames=['ENTITYTYPE','AUTHORITYDOC'],
-                    encoding='utf-8-sig', delimiter=',', restkey='ADDITIONAL', restval='MISSING')
-        rows.next() # skip header row
-        for row in rows:
-            if row[u'ENTITYTYPE'] != 'ARCHES RESOURCE CROSS-REFERENCE RELATIONSHIP TYPES.E32.csv':
-                sql = """
-                    SELECT conceptid FROM data.entity_types WHERE entitytypeid = '%s'
-                """%(row[u'ENTITYTYPE'])
-                #print sql
-            try:
-                cursor.execute(sql)
-                entity_type_conceptid = str(cursor.fetchone()[0])
-                auth_doc_file_name = str(row['AUTHORITYDOC'])
-                if auth_doc_file_name in ret:
-                    ret[auth_doc_file_name].append({'ENTITYTYPE' : row[u'ENTITYTYPE'], 'ENTITYTYPE_CONCEPTID': entity_type_conceptid})
-                else:
-                    ret[auth_doc_file_name] = [{'ENTITYTYPE' : row[u'ENTITYTYPE'], 'ENTITYTYPE_CONCEPTID': entity_type_conceptid}]
-            except Exception as e:
-                errors.append('ERROR in row %s (%s):\n%s\n%s' % (rows.line_num, str(e), sql, traceback.format_exc()))
-
-    if len(errors) > 0:
-        errors.insert(0, 'ERRORS IN FILE: %s\n' % (filepath))
-        errors.append('\n\n\n\n')
-    return ret
