@@ -122,7 +122,6 @@ INSERT INTO functions_x_datatypes VALUES (7, 'string', '60000000-0000-0000-0000-
 
 INSERT INTO concepts(conceptid, nodetype, legacyoid) VALUES ('00000000-0000-0000-0000-000000000001', 'ConceptScheme', 'ARCHES');
 INSERT INTO concepts(conceptid, nodetype, legacyoid) VALUES ('00000000-0000-0000-0000-000000000003', 'GroupingNode', 'DROPDOWNS');
-INSERT INTO concepts(conceptid, nodetype, legacyoid) VALUES ('00000000-0000-0000-0000-000000000004', 'GroupingNode', 'ENTITY NODES');
 INSERT INTO concepts(conceptid, nodetype, legacyoid) VALUES ('00000000-0000-0000-0000-000000000005', 'Collection', 'ARCHES RESOURCE CROSS-REFERENCE RELATIONSHIP TYPES.E32.csv');
 INSERT INTO concepts(conceptid, nodetype, legacyoid) VALUES ('00000000-0000-0000-0000-000000000006', 'ConceptScheme', 'CANDIDATES');
 
@@ -131,7 +130,6 @@ INSERT INTO relations(relationid, conceptidfrom, conceptidto, relationtype) VALU
 
 INSERT INTO values(valueid, conceptid, valuetype, value, languageid) VALUES (public.uuid_generate_v1mc(), '00000000-0000-0000-0000-000000000001', 'prefLabel', 'Arches', 'en-US');
 INSERT INTO values(valueid, conceptid, valuetype, value, languageid) VALUES (public.uuid_generate_v1mc(), '00000000-0000-0000-0000-000000000003', 'prefLabel', 'Dropdown Lists', 'en-US');
-INSERT INTO values(valueid, conceptid, valuetype, value, languageid) VALUES (public.uuid_generate_v1mc(), '00000000-0000-0000-0000-000000000004', 'prefLabel', 'Entity Nodes', 'en-US');
 INSERT INTO values(valueid, conceptid, valuetype, value, languageid) VALUES (public.uuid_generate_v1mc(), '00000000-0000-0000-0000-000000000005', 'prefLabel', 'Resource To Resource Relationship Types', 'en-US');
 INSERT INTO values(valueid, conceptid, valuetype, value, languageid) VALUES (public.uuid_generate_v1mc(), '00000000-0000-0000-0000-000000000006', 'prefLabel', 'Candidates', 'en-US');
 

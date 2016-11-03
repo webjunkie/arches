@@ -37,7 +37,6 @@ logger = logging.getLogger(__name__)
 CORE_CONCEPTS = (
     '00000000-0000-0000-0000-000000000001',
     '00000000-0000-0000-0000-000000000003',
-    '00000000-0000-0000-0000-000000000004',
     '00000000-0000-0000-0000-000000000006'
 )
 
@@ -912,7 +911,7 @@ class ConceptValue(object):
             se.create_mapping('concept_labels', scheme.id, fieldname='conceptid', fieldtype='string', fieldindex='not_analyzed')
             se.index_data('concept_labels', scheme.id, data, 'id')
             # don't create terms for entity type concepts
-            if not(scheme.id == '00000000-0000-0000-0000-000000000003' or scheme.id == '00000000-0000-0000-0000-000000000004'):
+            if not(scheme.id == '00000000-0000-0000-0000-000000000003'):
                 se.index_term(self.value, self.id, scheme.id, {'conceptid': self.conceptid})
 
     def delete_index(self):
