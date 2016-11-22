@@ -49,6 +49,7 @@ define([
         * @param {object} options - optional parameters to pass in during initialization
         */
         initialize: function(options) {
+            var self = this;
             if (options.items) {
                 this.items = options.items;
             }
@@ -63,9 +64,11 @@ define([
             this.items.subscribe(function (items) {
                 items.forEach(initializeItem, this);
             }, this);
-            this.filter = ko.observable('');
-            this.filter.subscribe(this.filter_function, this, 'change');
-            this.filter_function();
+            if(this.filter_function){
+                this.filter = ko.observable('');
+                this.filter.subscribe(this.filter_function, this, 'change');
+                this.filter_function();
+            }
 
             this.selectedItems = ko.computed(function(){
                 return this.items().filter(function(item){
@@ -83,13 +86,12 @@ define([
         * @param {object} evt - click event object
         */
         selectItem: function(item, evt){
-            if(this.trigger('item-selected', item, evt)){
-                var selectedStatus = item.selected();
-                if(this.single_select){
-                    this.clearSelection();
-                }
-                item.selected(!selectedStatus);
+            var selectedStatus = item.selected();
+            if(this.single_select){
+                this.clearSelection();
             }
+            item.selected(!selectedStatus);
+            this.trigger('item-clicked', item, evt);
         },
 
         /**

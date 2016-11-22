@@ -49,28 +49,38 @@ class Graph(models.GraphModel):
         # self.iconclass = ''
         # self.subtitle = ''
         # self.ontology = None
+        # self.functions = []
         # end from models.GraphModel
         self.root = None
         self.nodes = {}
         self.edges = {}
         self.cards = {}
+        self.widgets = {}
         self._nodegroups_to_delete = []
 
         if args:
             if isinstance(args[0], dict):
 
                 for key, value in args[0].iteritems():
-                    if not (key == 'root' or key == 'nodes' or key == 'edges' or key == 'cards'):
+                    if not (key == 'root' or key == 'nodes' or key == 'edges' or key == 'cards' or key == 'functions'):
                         setattr(self, key, value)
 
                 for node in args[0]["nodes"]:
-                    self.add_node(node)
+                    nodegroups = {}
+                    for nodegroup in args[0]["nodegroups"]:
+                        nodegroup = JSONSerializer().serializeToPython(nodegroup)
+                        nodegroups[nodegroup["nodegroupid"]] = nodegroup
+                    self.add_node(node, nodegroups)
 
                 for edge in args[0]["edges"]:
                     self.add_edge(edge)
 
                 for card in args[0]["cards"]:
                     self.add_card(card)
+
+                if 'functions' in args[0]:
+                    for function in args[0]["functions"]:
+                        self.add_function(function)
 
                 self.populate_null_nodegroups()
 
@@ -107,6 +117,9 @@ class Graph(models.GraphModel):
             isresource=is_resource,
             isactive=False,
             iconclass="",
+            mapfeaturecolor="#FF0000",
+            mappointsize=3,
+            maplinewidth=1,
             ontology=None
         )
         if not is_resource:
@@ -131,7 +144,7 @@ class Graph(models.GraphModel):
 
         return Graph.objects.get(pk=graph.graphid)
 
-    def add_node(self, node):
+    def add_node(self, node, nodegroups=None):
         """
         Adds a node to this graph
 
@@ -151,11 +164,16 @@ class Graph(models.GraphModel):
             node.datatype = nodeobj.get('datatype','')
             node.nodegroup_id = nodeobj.get('nodegroup_id','')
             node.config = nodeobj.get('config', None)
-            node.validations.set(nodeobj.get('validations', []))
+
+            node.nodeid = uuid.UUID(str(node.nodeid))
 
             if node.nodegroup_id != None and node.nodegroup_id != '':
                 node.nodegroup_id = uuid.UUID(str(node.nodegroup_id))
                 node.nodegroup = self.get_or_create_nodegroup(nodegroupid=node.nodegroup_id)
+                if nodegroups is not None and node.nodegroup_id in nodegroups:
+                    node.nodegroup.cardinality = nodegroups[str(node.nodegroup_id)]["cardinality"]
+                    node.nodegroup.legacygroupid = nodegroups[str(node.nodegroup_id)]["legacygroupid"]
+                    node.nodegroup.parentnodegroupid = nodegroups[str(node.nodegroup_id)]["parentnodegroup_id"]
             else:
                 node.nodegroup = None
 
@@ -185,8 +203,8 @@ class Graph(models.GraphModel):
             egdeobj = edge.copy()
             edge = models.Edge()
             edge.edgeid = egdeobj.get('edgeid', None)
-            edge.rangenode = self.nodes[egdeobj.get('rangenode_id')]
-            edge.domainnode = self.nodes[egdeobj.get('domainnode_id')]
+            edge.rangenode = self.nodes[uuid.UUID(str(egdeobj.get('rangenode_id')))]
+            edge.domainnode = self.nodes[uuid.UUID(str(egdeobj.get('domainnode_id')))]
             edge.ontologyproperty = egdeobj.get('ontologyproperty', '')
 
         edge.graph = self
@@ -224,7 +242,31 @@ class Graph(models.GraphModel):
             card.pk = uuid.uuid1()
 
         self.cards[card.pk] = card
+
+        widgets = list(card.cardxnodexwidget_set.all())
+        for widget in widgets:
+            self.widgets[widget.pk] = widget
+
         return card
+
+    def add_function(self, function):
+        """
+        Adds a card to this graph
+
+        Arguments:
+        node -- a dictionary representing a Card instance or an actual models.CardModel instance
+
+        """
+
+        if not isinstance(function, models.FunctionXGraph):
+            functionobj = function.copy()
+            function = models.FunctionXGraph()
+            function.fuction_id = functionobj.functionid
+            function.config = functionobj.config
+
+        function.graph = self
+
+        return function
 
     def save(self):
         """
@@ -250,6 +292,9 @@ class Graph(models.GraphModel):
             for card in self.cards.itervalues():
                 card.save()
 
+            for widget in self.widgets.itervalues():
+                widget.save()
+
             for nodegroup in self._nodegroups_to_delete:
                 nodegroup.delete()
             self._nodegroups_to_delete = []
@@ -269,6 +314,9 @@ class Graph(models.GraphModel):
 
             for card in self.cards.itervalues():
                 card.delete()
+
+            for widget in self.widgets.itervalues():
+                widget.delete()
 
             super(Graph, self).delete()
 
@@ -362,6 +410,8 @@ class Graph(models.GraphModel):
                 self.add_card(card)
             for edge in branch_copy.edges.itervalues():
                 self.add_edge(edge)
+            for widget in branch_copy.widgets.itervalues():
+                self.widgets[widget.pk] = widget
 
             self.populate_null_nodegroups()
 
@@ -397,6 +447,8 @@ class Graph(models.GraphModel):
         node_ids = sorted(copy_of_self.nodes, key=lambda node_id: copy_of_self.nodes[node_id].is_collector, reverse=True)
 
         copy_of_self.pk = uuid.uuid1()
+        node_map = {}
+        card_map = {}
         for node_id in node_ids:
             node = copy_of_self.nodes[node_id]
             if node == self.root:
@@ -404,15 +456,24 @@ class Graph(models.GraphModel):
             node.graph = copy_of_self
             is_collector = node.is_collector
             node.pk = uuid.uuid1()
+            node_map[node_id] = node.pk
             if is_collector:
                 old_nodegroup_id = node.nodegroup_id
-                node.nodegroup = models.NodeGroup(pk=node.pk)
+                node.nodegroup = models.NodeGroup(pk=node.pk, cardinality=node.nodegroup.cardinality)
                 for card in copy_of_self.cards.itervalues():
                     if str(card.nodegroup_id) == str(old_nodegroup_id):
-                        card.pk = uuid.uuid1()
+                        new_id = uuid.uuid1()
+                        card_map[card.pk] = new_id
+                        card.pk = new_id
                         card.nodegroup = node.nodegroup
+                        card.graph = copy_of_self
             else:
                 node.nodegroup = None
+
+        for widget in copy_of_self.widgets.itervalues():
+            widget.pk = uuid.uuid1()
+            widget.node_id = node_map[widget.node_id]
+            widget.card_id = card_map[widget.card_id]
 
         copy_of_self.populate_null_nodegroups()
 
@@ -902,8 +963,10 @@ class Graph(models.GraphModel):
                     card.name = self.name
                     card.description = self.description
                 else:
-                    card.name = self.nodes[card.nodegroup.pk].name
-                    card.description = self.nodes[card.nodegroup.pk].description
+                    if not card.name:
+                        card.name = self.nodes[card.nodegroup.pk].name
+                    if not card.description:
+                        card.description = self.nodes[card.nodegroup.pk].description
 
             cards.append(card)
 
@@ -951,17 +1014,14 @@ class Graph(models.GraphModel):
 
         # validates that the top node of a resource graph is semantic and a collector
 
-        if self.root.datatype != 'semantic':
-            raise ValidationError(_("The top node of your resource graph must have a datatype of 'semantic'."))
-
         if self.isresource == True:
             if self.root.is_collector == True:
                 raise ValidationError(_("The top node of your resource graph: {0} needs to be a collector. Hint: check that nodegroup_id of your resource node(s) are not null.".format(self.root.name)))
+            if self.root.datatype != 'semantic':
+                raise ValidationError(_("The top node of your resource graph must have a datatype of 'semantic'."))
         else:
             if self.root.is_collector == False:
                 if len(self.nodes) > 1:
-                    print '*'*40
-                    print self.root.name
                     raise ValidationError(_("If your graph contains more than one node and is not a resource the root must be a collector."))
 
 

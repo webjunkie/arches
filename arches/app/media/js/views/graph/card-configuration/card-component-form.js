@@ -4,9 +4,10 @@ define([
     'knockout',
     'views/graph/card-configuration/component-forms/permissions-list',
     'widgets',
+    'card-configuration-data',
     'bindings/summernote',
     'plugins/knockstrap'
-], function(_, Backbone,  ko, PermissionsList, widgets) {
+], function(_, Backbone,  ko, PermissionsList, widgets, data) {
     var CardComponentForm = Backbone.View.extend({
         /**
         * A backbone view representing a card component form
@@ -22,11 +23,12 @@ define([
         */
         initialize: function(options) {
             var self = this;
-            _.extend(this, _.pick(options, 'card', 'functions'));
+            _.extend(this, _.pick(options, 'card'));
             this.selection = options.selection || ko.observable(this.card);
             this.helpPreviewActive = options.helpPreviewActive || ko.observable(false);
             this.card = ko.observable();
             this.widget = ko.observable();
+            this.graph = options.graphModel;
             this.widgetLookup = widgets;
             this.widgetList = function() {
                 var cardWidget = self.widget();
@@ -42,16 +44,6 @@ define([
                     return [];
                 }
             };
-
-            this.validations = ko.computed(function () {
-                var validationIDs = [];
-                if (self.widget()) {
-                    validationIDs = self.widget().datatype.validations;
-                }
-                return _.filter(options.validations, function(validation) {
-                    return _.contains(validationIDs, validation.validationid);
-                })
-            });
 
             this.updateSelection = function(selection) {
                 if('isContainer' in selection){

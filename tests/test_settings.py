@@ -24,14 +24,14 @@ import inspect
 PACKAGE_NAME = 'arches'
 ROOT_DIR = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 ROOT_DIR = os.path.normpath(os.path.join(ROOT_DIR, '..', 'arches'))
-PACKAGE_ROOT = os.path.normpath(os.path.join(ROOT_DIR, '..', 'tests'))
+TEST_ROOT = os.path.normpath(os.path.join(ROOT_DIR, '..', 'tests'))
 
 
-RESOURCE_GRAPH_LOCATIONS = (os.path.join(PACKAGE_ROOT, 'fixtures', 'resource_graphs'),)
+RESOURCE_GRAPH_LOCATIONS = (os.path.join(TEST_ROOT, 'fixtures', 'resource_graphs'),)
 
-CONCEPT_SCHEME_LOCATIONS = (os.path.join(PACKAGE_ROOT, 'fixtures', 'authority_files'),)
+CONCEPT_SCHEME_LOCATIONS = (os.path.join(TEST_ROOT, 'fixtures', 'authority_files'),)
 
-ONTOLOGY_FIXTURES = os.path.join(PACKAGE_ROOT, 'fixtures', 'ontologies')
+ONTOLOGY_FIXTURES = os.path.join(TEST_ROOT, 'fixtures', 'ontologies')
 
 BUSISNESS_DATA_FILES = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
@@ -55,21 +55,21 @@ if SAUCE_USERNAME and SAUCE_ACCESS_KEY:
 
 # browser/os combinations to use with saucelabs
 REMOTE_BROWSERS = [
-    {"platform": "Windows 8.1",
-     "browserName": "internet explorer",
-     "version": "11"},
-    {"platform": "Mac OS X 10.9",
-     "browserName": "chrome",
-     "version": "44"},
-    {"platform": "Linux",
-     "browserName": "firefox",
-     "version": "43"}
+    # {"platform": "Windows 8.1",
+    #  "browserName": "internet explorer",
+    #  "version": "11"},
+    # {"platform": "Mac OS X 10.9",
+    #  "browserName": "chrome",
+    #  "version": "53"},
+    # {"platform": "Linux",
+    #  "browserName": "firefox",
+    #  "version": "45"}
 ]
 
 # Tell nose to measure coverage on the 'foo' and 'bar' apps
 NOSE_ARGS = [
     '--with-coverage',
-    '--nocapture', 
+    '--nologcapture',
     '--cover-package=arches',
     '--verbosity=1',
     '--cover-erase',
@@ -84,5 +84,3 @@ try:
     from settings_local import *
 except ImportError:
     pass
-
-

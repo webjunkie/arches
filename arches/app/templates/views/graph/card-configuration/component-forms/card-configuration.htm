@@ -6,30 +6,11 @@
         <h4 class="title-block-title" style=""> Card Manager </h4>
     </div>
 
-    <!-- Panel Tools -->
-<!--     <div class="library-tools">
-        <i id="card-crud-settings" class="ion-settings add-tooltip library-tools-icon active" data-placement="bottom" data-toggle="tooltip" data-original-title="Settings"></i>
-        <i id="card-crud-advanced" class="ion-ios-gear add-tooltip library-tools-icon" data-placement="bottom" data-toggle="tooltip" data-original-title="Advanced Settings"></i>
-        <i id="card-crud-validation" class="ion-wand add-tooltip library-tools-icon" data-placement="bottom" data-toggle="tooltip" data-original-title="Validations"></i>
-        <i id="card-crud-permissions" class="ion-ios-people add-tooltip library-tools-icon" data-placement="bottom" data-toggle="tooltip" data-original-title="Permissions"></i>
-        <i id="card-crud-help" class="ion-ios-help add-tooltip library-tools-icon" data-placement="bottom" data-toggle="tooltip" data-original-title="Help Text"></i>
-    </div> -->
-
     <!-- nav bar -->
     <ul class="nav nav-tabs library-tools">
         <li class="active">
             <a href="#card-crud-settings" class="nav-library-tab-link" data-toggle="tab">
                 <i class="ion-settings add-tooltip library-tools-icon" data-bind="tooltip: { title: '{% trans "Settings" %}', placement: 'bottom' }"></i>
-            </a>
-        </li>
-        <li>
-            <a href="#card-crud-advanced" class="nav-library-tab-link" data-toggle="tab">
-                <i class="ion-ios-gear add-tooltip library-tools-icon" data-bind="tooltip: { title: '{% trans "Advanced Settings" %}', placement: 'bottom' }"></i>
-            </a>
-        </li>
-        <li>
-            <a href="#card-crud-validation" class="nav-library-tab-link" data-toggle="tab">
-                <i class="ion-wand add-tooltip library-tools-icon" data-bind="tooltip: { title: '{% trans "Validations" %}', placement: 'bottom' }"></i>
             </a>
         </li>
         <li>
@@ -69,18 +50,16 @@
                 <input type="" placeholder="{% trans "" %}" class="form-control input-md widget-input" data-bind="value: card().get('instructions'), valueUpdate: 'keyup'">
             </div>
         </div>
-    </div>
 
-    <!-- Card CRUD ADVANCED SETTINGS Form -->
-    <div id="card-crud-advanced" class="tab-pane fade">
+        <div class="form-divider">
+            <h4 class="title-block-title" style=""> {% trans "Settings" %} </h4>
+        </div>
 
         <!-- Set Cardinaltiy -->
         <div data-bind="component: { name: 'switch-widget', params: {value: card().get('cardinality'), config:{on: 'n', off: '1', label: '{% trans "Allow multiple values" %}', subtitle: '{% trans "Let users enter multiple values for this data entry card" %}'}}}"></div>
 
         <!-- Multiple values tools -->
         <div class="cardinality-form" data-bind="visible: card().get('cardinality')() === 'n'" style="display: none;">
-
-            <div class="form-divider" style="margin-top: 0px; margin-bottom: 10px;"></div>
 
             <!-- Cardinlity Tools: Tile Header -->
             <div class="node-widget-label" style="">
@@ -92,18 +71,7 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Card CRUD Validation/Functions Form -->
-    <div id="card-crud-validation" class="tab-pane fade">
-        <div class="node-widget-label" style="">
-            <div class="control-label">
-                {% trans "Functions" %}
-            </div>
-            <div data-bind="with: card">
-                <select data-placeholder="{% trans "Select functions..." %}" class="design" multiple data-bind="selectedOptions: $data.get('functions'), options: $parent.functions.filter(function(fn) { return fn.functiontype === 'card'; }), optionsText: 'name', optionsValue: 'functionid', chosen: {disable_search_threshold: 10, width: '100%'}"></select>
-            </div>
-        </div>
+        
     </div>
 
     <!-- Card CRUD Permissions Form -->

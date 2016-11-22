@@ -50,7 +50,7 @@ define(['arches',
         deleteNode: function(node, callback, scope){
             this._doRequest({
                 type: "DELETE",
-                url: this.url + 'delete_node/' + this.get('graphid'),
+                url: this.url + this.get('graphid') + '/delete_node',
                 data: JSON.stringify({nodeid:node.nodeid})
             }, function(response, status, self){
                 if (status === 'success' &&  response.responseJSON) {
@@ -153,7 +153,7 @@ define(['arches',
 
             this._doRequest({
                 type: "POST",
-                url: this.url + 'append_branch/' + this.get('graphid'),
+                url: this.url + this.get('graphid') + '/append_branch',
                 data: JSON.stringify({nodeid:nodeid, property: property, graphid: branch_graph.get('graphid')})
             }, function(response, status, self){
                 if (status === 'success' &&  response.responseJSON) {
@@ -204,7 +204,7 @@ define(['arches',
         moveNode: function(node, property, newParentNode, callback, scope){
             this._doRequest({
                 type: "POST",
-                url: this.url + 'move_node/' + this.get('graphid'),
+                url: this.url + this.get('graphid') + '/move_node',
                 data: JSON.stringify({nodeid:node.nodeid, property: property, newparentnodeid: newParentNode.nodeid})
             }, function(response, status, self){
                 if (status === 'success' &&  response.responseJSON) {
@@ -220,7 +220,7 @@ define(['arches',
                             return response_node.nodeid === node.nodeid;
                         });
                         if (found_node){
-                            node.nodeGroupId(found_node.nodegroup_id);
+                            node.parse(found_node);
                         }
                     });
                 }
@@ -241,7 +241,7 @@ define(['arches',
         updateNode: function(node, callback, scope){
             this._doRequest({
                 type: "POST",
-                url: this.url + 'update_node/' + this.get('graphid'),
+                url: this.url + this.get('graphid') + '/update_node',
                 data: JSON.stringify(node.toJSON())
             }, function(response, status, self){
                 if (status === 'success' &&  response.responseJSON) {
@@ -269,9 +269,8 @@ define(['arches',
          */
         getValidNodesEdges: function(nodeid, callback, scope){
             this._doRequest({
-                type: "POST",
-                url: this.url + this.get('graphid') + '/get_related_nodes',
-                data: JSON.stringify({'nodeid': nodeid})
+                type: "GET",
+                url: this.url + this.get('graphid') + '/get_related_nodes/' + nodeid,
             }, function(response, status, self){
                 callback.call(scope, response.responseJSON);
             }, this);
@@ -287,9 +286,8 @@ define(['arches',
          */
         getValidDomainClasses: function(nodeid, callback, scope){
             this._doRequest({
-                type: "POST",
-                url: this.url + this.get('graphid') + '/get_valid_domain_nodes',
-                data: JSON.stringify({'nodeid': nodeid})
+                type: "GET",
+                url: this.url + this.get('graphid') + '/get_valid_domain_nodes/' + nodeid,
             }, function(response, status, self){
                 callback.call(scope, response.responseJSON);
             }, this);
@@ -416,7 +414,6 @@ define(['arches',
                             });
                             if(node.istopnode){
                                 this.set('root', nodeModel);
-                                nodeModel.selected(true);
                             }
                             nodes.push(nodeModel);
                         }, this);
@@ -435,6 +432,26 @@ define(['arches',
                 }, this);
                 return selectedNode;
             }));
+
+            var root = this.get('root');
+            if(!!root){
+                root.selected(true);
+            }
+
+            this.graphCards = ko.computed(function(){
+                var parentCards = [];
+                if (this.get('cards')) {
+                    var allCards = this.get('cards')();
+                    this.get('nodegroups').filter(function(nodegroup){
+                        return !!nodegroup.parentnodegroup_id === false;
+                    }, this).forEach(function(nodegroup){
+                        parentCards = parentCards.concat(allCards.filter(function(card){
+                            return card.nodegroup_id === nodegroup.nodegroupid;
+                        }, this))
+                    }, this);
+                }
+                return parentCards;
+            }, this);
         },
 
         /**

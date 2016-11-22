@@ -16,10 +16,52 @@ define(['arches',
 
         url: arches.urls.card,
 
-        constructor: function(attributes, options){
-            options || (options = {});
-            options.parse = true;
-            AbstractModel.prototype.constructor.call(this, attributes, options);
+        initialize: function(attributes){
+            var self = this;
+            this.set('cards', ko.observableArray());
+            this.set('nodes', ko.observableArray());
+            this.set('widgets', ko.observableArray());
+            this.set('tiles', ko.observableArray());
+
+            this.set('cardid', ko.observable());
+            this.set('name', ko.observable());
+            this.set('instructions', ko.observable());
+            this.set('helptext', ko.observable());
+            this.set('helpenabled', ko.observable());
+            this.set('helptitle', ko.observable());
+            this.set('helpactive', ko.observable(false));
+            this.set('cardinality', ko.observable());
+            this.set('visible', ko.observable());
+            this.set('active', ko.observable());
+            this.set('itemtext', ko.observable());
+            this.set('ontologyproperty', ko.observable());
+            this.set('sortorder', ko.observable());
+
+
+            this._card = ko.observable('{}');
+
+            this.get('cards').subscribe(function (cards) {
+                _.each(cards, function(card, i) {
+                    card.get('sortorder')(i);
+                })
+            });
+
+            this.get('widgets').subscribe(function (widgets) {
+                _.each(widgets, function(widget, i) {
+                    widget.get('sortorder')(i);
+                });
+            });
+
+            this.dirty = ko.computed(function(){
+                return JSON.stringify(_.extend(JSON.parse(self._card()),self.toJSON())) !== self._card();
+            })
+
+            this.isContainer = ko.computed(function() {
+                return !!self.get('cards')().length;
+            });
+
+            this.parse(attributes);
+
         },
 
         /**
@@ -32,6 +74,7 @@ define(['arches',
             var datatypelookup = {};
 
             attributes =_.extend({datatypes:[]}, attributes);
+            this._attributes = attributes;
 
             _.each(attributes.datatypes, function(datatype){
                 datatypelookup[datatype.datatype] = datatype;
@@ -51,12 +94,7 @@ define(['arches',
                             });
                             cards.push(cardModel);
                         }, this);
-                        this.set('cards', ko.observableArray(cards));
-                        this.get('cards').subscribe(function (cards) {
-                            _.each(cards, function(card, i) {
-                                card.get('sortorder')(i);
-                            })
-                        });
+                        this.get('cards')(cards);
                         break;
                     case 'nodes':
                         var nodes = [];
@@ -82,12 +120,18 @@ define(['arches',
                             }
                             nodes.push(nodeModel);
                         }, this);
-                        this.set('nodes', ko.observableArray(nodes));
+                        this.get('nodes')(nodes);
+                        widgets.sort(function (w, ww) {
+                            return w.get('sortorder')() > ww.get('sortorder')();
+                        });
+                        this.get('widgets')(widgets);
                         break;
                     case 'widgets':
                         break;
                     case 'cardid':
                         this.set('id', value);
+                        this.get(key)(value);
+                        break;
                     case 'name':
                     case 'instructions':
                     case 'helptext':
@@ -99,45 +143,32 @@ define(['arches',
                     case 'itemtext':
                     case 'ontologyproperty':
                     case 'sortorder':
-                        this.set(key, ko.observable(value));
+                        this.get(key)(value);
                         break;
                     case 'ontology_properties':
                     case 'users':
                     case 'groups':
+                    case 'tiles':
                         this.set(key, koMapping.fromJS(value));
-                        break;
-                    case 'functions':
-                        this.set(key, ko.observableArray(value));
                         break;
                     default:
                         this.set(key, value);
                 }
             }, this);
-            widgets = ko.observableArray(widgets).sort(function (w, ww) {
-                return w.get('sortorder')() > ww.get('sortorder')();
-            });
-            this.set('widgets', widgets);
-            this.get('widgets').subscribe(function (widgets) {
-                _.each(widgets, function(widget, i) {
-                    widget.get('sortorder')(i);
-                });
-            });
 
-            this._card = ko.observable(JSON.stringify(this.toJSON()));
+            this._card(JSON.stringify(this.toJSON()));
+        },
 
-            this.dirty = ko.computed(function(){
-                return JSON.stringify(_.extend(JSON.parse(self._card()),self.toJSON())) !== self._card();
-            })
-
-            this.isContainer = ko.computed(function() {
-                return !!self.get('cards')().length;
-            });
+        reset: function () {
+            this._attributes.data  = JSON.parse(this._card());
+            this.parse(this._attributes);
         },
 
         toJSON: function(){
             var ret = {};
             for(var key in this.attributes){
-                if(key !== 'datatypelookup' && key !== 'ontology_properties' && key !== 'nodes' && key !== 'widgets'){
+                if(key !== 'datatypelookup' && key !== 'ontology_properties' && key !== 'nodes'
+                 && key !== 'widgets' && key !== 'datatypes' && key !== 'data'){
                     if(ko.isObservable(this.attributes[key])){
                         if(key === 'users' || key === 'groups'){
                             ret[key] = koMapping.toJS(this.attributes[key]);
@@ -165,7 +196,7 @@ define(['arches',
             return ret;
         },
 
-        save: function(){
+        save: function(callback){
             AbstractModel.prototype.save.call(this, function(request, status, self){
                 if(status === 'success'){
                     // only user permissions data needs to be updated from the response because it's value can
@@ -185,6 +216,9 @@ define(['arches',
                         });
                     })
                     this._card(JSON.stringify(this.toJSON()));
+                }
+                if (typeof callback === 'function') {
+                    callback(request, status, self);
                 }
             }, this);
         }

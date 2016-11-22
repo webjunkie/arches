@@ -1,5 +1,8 @@
+{% extends "views/forms/widgets/base.htm" %}
 {% load i18n %}
-<div class="row widget-wrapper" data-bind="if: !configForm">
+
+{% block form %}
+<div class="row widget-wrapper">
     <div class="form-group">
         <label class="control-label widget-input-label" for="" data-bind="text:label"></label>
         <div class="col-xs-12">
@@ -7,7 +10,9 @@
         </div>
     </div>
 </div>
+{% endblock form %}
 
-<div data-bind="if: configForm">
-
-</div>
+{% block report %}
+<dt data-bind="text: label"></dt>
+<dd data-bind="html: value() || '{% trans "None" %}'"></dd>
+{% endblock report %}

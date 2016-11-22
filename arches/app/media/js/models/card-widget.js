@@ -14,9 +14,9 @@ define(['underscore', 'knockout', 'models/abstract', 'widgets'], function (_, ko
                 'widget_id': '',
                 'config': {},
                 'label': '',
-                'sortorder': null,
-                'functions': []
+                'sortorder': null
             };
+            this.widgetLookup = widgets;
             options || (options = {});
             attributes || (attributes = {});
             options.parse = true;
@@ -58,13 +58,15 @@ define(['underscore', 'knockout', 'models/abstract', 'widgets'], function (_, ko
                     for (key in value) {
                         if (key === 'label') {
                             this.get('label')(value[key]);
-                        } else if (config[key]() !== value[key]) {
+                        }
+                        if (config[key] && config[key]() !== value[key]) {
                             config[key](value[key]);
                         }
                     }
                 },
                 owner: this
             });
+            this.configJSON.extend({ rateLimit: { timeout: 100, method: "notifyWhenChangesStop" } })
 
             return this;
         },
@@ -107,8 +109,6 @@ define(['underscore', 'knockout', 'models/abstract', 'widgets'], function (_, ko
                         },
                         owner: this
                     }));
-                } else if (key === 'functions') {
-                    this.set(key, ko.observableArray(value));
                 } else {
                     this.set(key, ko.observable(value));
                 }
