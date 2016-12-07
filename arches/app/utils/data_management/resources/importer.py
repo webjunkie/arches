@@ -33,12 +33,11 @@ def import_business_data(business_data):
                 resource['resourceinstance']['resourceinstanceid'] = uuid.UUID(str(resource['resourceinstance']['resourceinstanceid']))
                 resource['resourceinstance']['graphid'] = uuid.UUID(str(resource['resourceinstance']['graph_id']))
 
-                resourceinstance = ResourceInstance(
+                resourceinstance = ResourceInstance.objects.update_or_create(
                     resourceinstanceid = resource['resourceinstance']['resourceinstanceid'],
                     graph_id = resource['resourceinstance']['graphid'],
                     resourceinstancesecurity = resource['resourceinstance']['resourceinstancesecurity']
                 )
-                resourceinstance.save()
 
             if resource['tiles'] != []:
                 for tile in resource['tiles']:
@@ -47,14 +46,14 @@ def import_business_data(business_data):
                     tile['resourceinstance_id'] = ResourceInstance(uuid.UUID(str(tile['resourceinstance_id'])))
                     tile['tileid'] = uuid.UUID(str(tile['tileid']))
 
-                    tile = Tile(
+                    tile = Tile.objects.update_or_create(
                         resourceinstance = tile['resourceinstance_id'],
-                        parenttile = tile['parenttile_id'],
+                        parenttile = Tile(uuid.UUID(str(tile['parenttile_id']))) if tile['parenttile_id'] else None,
                         nodegroup = tile['nodegroup_id'],
                         tileid = tile['tileid'],
                         data = tile['data']
                     )
-                    tile.save()
+
     if type(business_data) == dict and business_data['relations']:
         for relation in business_data['relations']:
             relation['resourcexid'] = uuid.UUID(str(relation['resourcexid']))
@@ -62,7 +61,7 @@ def import_business_data(business_data):
             relation['resourceinstanceidto'] = ResourceInstance(uuid.UUID(str(relation['resourceinstanceidto'])))
             relation['relationshiptype'] = uuid.UUID(str(relation['relationshiptype']))
 
-            relation = ResourceXResource(
+            relation = ResourceXResource.objects.update_or_create(
                 resourcexid = relation['resourcexid'],
                 resourceinstanceidfrom = relation['resourceinstanceidfrom'],
                 resourceinstanceidto = relation['resourceinstanceidto'],
@@ -72,7 +71,7 @@ def import_business_data(business_data):
                 dateended = relation['dateended']
             )
             # print vars(relation)
-            relation.save()
+            relation.update_or_create()
 
 
 class ResourceLoader(object):

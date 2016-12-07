@@ -194,9 +194,9 @@ INSERT INTO widgets(widgetid, name, component, datatype, defaultconfig)
         "bearing": 0.0,
         "geocodePlaceholder": "Search",
         "geocoderVisible": true,
-        "resourceColor": null,
-        "resourceLineWidth": null,
-        "resourcePointSize": null
+        "featureColor": null,
+        "featureLineWidth": null,
+        "featurePointSize": null
     }'
 );
 
@@ -246,8 +246,8 @@ INSERT INTO nodes(nodeid, name, description, istopnode, ontologyclass, datatype,
 INSERT INTO node_groups(nodegroupid, legacygroupid, cardinality)
     VALUES ('20000000-0000-0000-0000-100000000001', '', 'n');
 
-INSERT INTO edges(graphid, domainnodeid, rangenodeid, ontologyproperty)
-    VALUES ('22000000-0000-0000-0000-000000000001', '20000000-0000-0000-0000-100000000001', '20000000-0000-0000-0000-100000000002', 'P2_has_type');
+INSERT INTO edges(edgeid, graphid, domainnodeid, rangenodeid, ontologyproperty)
+    VALUES ('22200000-0000-0000-0000-000000000001', '22000000-0000-0000-0000-000000000001', '20000000-0000-0000-0000-100000000001', '20000000-0000-0000-0000-100000000002', 'P2_has_type');
 
 INSERT INTO cards(cardid, name, description, instructions,
         nodegroupid, graphid, active, visible, helpenabled)
@@ -2161,143 +2161,6 @@ INSERT INTO map_sources(name, source)
        }');
 
 INSERT INTO map_sources(name, source)
-  VALUES ('presidio', '{
-              "type": "geojson",
-              "data": {
-                         "type": "FeatureCollection",
-                         "features": [
-                             {
-                               "type": "Feature",
-                               "properties": {},
-                               "geometry": {
-                                 "type": "Polygon",
-                                 "coordinates": [
-                                   [
-                                     [
-                                       -122.44794845581055,
-                                       37.80666460115532
-                                     ],
-                                     [
-                                       -122.44709014892577,
-                                       37.791879793952084
-                                     ],
-                                     [
-                                       -122.46751785278319,
-                                       37.78808138412046
-                                     ],
-                                     [
-                                       -122.48828887939453,
-                                       37.78848836594184
-                                     ],
-                                     [
-                                       -122.47730255126952,
-                                       37.810326435534755
-                                     ],
-                                     [
-                                       -122.46356964111327,
-                                       37.80476580072879
-                                     ],
-                                     [
-                                       -122.44794845581055,
-                                       37.80666460115532
-                                     ]
-                                   ]
-                                 ]
-                               }
-                             },
-                             {
-                               "type": "Feature",
-                               "properties": {},
-                               "geometry": {
-                                 "type": "Point",
-                                 "coordinates": [
-                                   -122.24709014892577,
-                                   37.791879793952084
-                                 ]
-                               }
-                             }
-                         ]
-                       }
-              }');
-
-INSERT INTO map_layers(maplayerid, name, layerdefinitions, isoverlay, icon)
-    VALUES (public.uuid_generate_v1mc(), 'presidio', '[{
-        "id":"presidio-poly",
-        "source":"presidio",
-        "type":"fill",
-        "layout": {},
-        "paint": {
-            "fill-color": "#fb6017",
-            "fill-opacity": 0.8
-        }
-      },{
-          "id":"presidio-point",
-          "source":"presidio",
-          "type":"circle",
-          "layout": {},
-          "type": "circle",
-          "filter": ["!in", "$type", "Polygon"],
-          "paint": {
-              "circle-radius": 5,
-              "circle-color": "#fb6017"
-          }
-        }]', TRUE, 'fa fa-flag');
-
-INSERT INTO map_sources(name, source)
-  VALUES ('sf-national-cemetery',
-    '{
-        "type": "geojson",
-        "data":
-        {
-          "type": "FeatureCollection",
-          "features": [
-            {
-              "type": "Feature",
-              "properties": {},
-              "geometry": {
-                "type": "Point",
-                "coordinates": [
-                  -118.828125,
-                  37.996162679728116
-                ]
-              }
-            },
-            {
-              "type": "Feature",
-              "properties": {},
-              "geometry": {
-                "type": "Polygon",
-                "coordinates": [
-                  [
-                    [
-                      -122.46423482894897,
-                      37.80166319140713
-                    ],
-                    [
-                      -122.4621319770813,
-                      37.800459411713945
-                    ],
-                    [
-                      -122.46494293212889,
-                      37.79742444343689
-                    ],
-                    [
-                      -122.46711015701293,
-                      37.79861131738665
-                    ],
-                    [
-                      -122.46423482894897,
-                      37.80166319140713
-                    ]
-                  ]
-                ]
-              }
-            }
-          ]
-        }
-    }');
-
-INSERT INTO map_sources(name, source)
   VALUES ('stamen-terrain', '{
       "type": "raster",
       "tiles": ["http://tile.stamen.com/terrain/{z}/{x}/{y}.jpg"],
@@ -2312,19 +2175,6 @@ INSERT INTO map_sources(name, source)
           "features": []
       }
   }');
-
-
-INSERT INTO map_layers(maplayerid, name, layerdefinitions, isoverlay, icon)
-    VALUES (public.uuid_generate_v1mc(), 'sf-national-cemetery', '[{
-        "id":"sf-national-cemetery",
-        "source":"sf-national-cemetery",
-        "type":"fill",
-        "layout": {},
-        "paint": {
-            "fill-color": "#088",
-            "fill-opacity": 0.8
-        }
-      }]', TRUE, 'ion-ios-flag');
 
 INSERT INTO map_layers(maplayerid, name, layerdefinitions, isoverlay, icon)
     VALUES (public.uuid_generate_v1mc(), 'stamen-terrain', '[{
@@ -2357,8 +2207,7 @@ INSERT INTO map_layers(maplayerid, name, layerdefinitions, isoverlay, icon)
         "paint": {
             "fill-color": "#d2edae",
             "fill-opacity": 0.75
-        },
-        "interactive": true
+        }
     },{
         "id": "landuse_park",
         "type": "fill",
@@ -2371,8 +2220,7 @@ INSERT INTO map_layers(maplayerid, name, layerdefinitions, isoverlay, icon)
         ],
         "paint": {
             "fill-color": "#d2edae"
-        },
-        "interactive": true
+        }
     },{
         "id": "waterway",
         "type": "line",
@@ -2407,8 +2255,7 @@ INSERT INTO map_layers(maplayerid, name, layerdefinitions, isoverlay, icon)
                     ]
                 ]
             }
-        },
-        "interactive": true
+        }
     },{
         "id": "water",
         "type": "fill",
@@ -2416,8 +2263,7 @@ INSERT INTO map_layers(maplayerid, name, layerdefinitions, isoverlay, icon)
         "source-layer": "water",
         "paint": {
             "fill-color": "#a0cfdf"
-        },
-        "interactive": true
+        }
     },{
         "id": "building",
         "type": "fill",
@@ -2425,10 +2271,8 @@ INSERT INTO map_layers(maplayerid, name, layerdefinitions, isoverlay, icon)
         "source-layer": "building",
         "paint": {
             "fill-color": "#d6d6d6"
-        },
-        "interactive": true
+        }
     },{
-        "interactive": true,
         "layout": {
             "line-cap": "butt",
             "line-join": "miter"
@@ -2486,7 +2330,6 @@ INSERT INTO map_layers(maplayerid, name, layerdefinitions, isoverlay, icon)
         },
         "source-layer": "road"
     },{
-        "interactive": true,
         "layout": {
             "line-cap": "butt",
             "line-join": "miter"
@@ -2541,7 +2384,6 @@ INSERT INTO map_layers(maplayerid, name, layerdefinitions, isoverlay, icon)
         },
         "source-layer": "road"
     },{
-        "interactive": true,
         "layout": {
             "line-cap": "round",
             "line-join": "round"
@@ -2596,7 +2438,6 @@ INSERT INTO map_layers(maplayerid, name, layerdefinitions, isoverlay, icon)
         },
         "source-layer": "road"
     },{
-        "interactive": true,
         "layout": {
             "line-cap": "round",
             "line-join": "round"
@@ -2648,7 +2489,6 @@ INSERT INTO map_layers(maplayerid, name, layerdefinitions, isoverlay, icon)
         },
         "source-layer": "road"
     },{
-        "interactive": true,
         "layout": {
             "line-cap": "butt",
             "line-join": "miter"
@@ -2715,7 +2555,6 @@ INSERT INTO map_layers(maplayerid, name, layerdefinitions, isoverlay, icon)
         },
         "source-layer": "road"
     },{
-        "interactive": true,
         "layout": {
             "line-cap": "butt",
             "line-join": "miter"
@@ -2779,7 +2618,6 @@ INSERT INTO map_layers(maplayerid, name, layerdefinitions, isoverlay, icon)
         },
         "source-layer": "road"
     },{
-        "interactive": true,
         "layout": {
             "line-cap": "round",
             "line-join": "round"
@@ -2833,7 +2671,6 @@ INSERT INTO map_layers(maplayerid, name, layerdefinitions, isoverlay, icon)
         },
         "source-layer": "road"
     },{
-        "interactive": true,
         "layout": {
             "line-cap": "round",
             "line-join": "round"
@@ -2884,7 +2721,6 @@ INSERT INTO map_layers(maplayerid, name, layerdefinitions, isoverlay, icon)
         },
         "source-layer": "road"
     },{
-        "interactive": true,
         "layout": {
             "line-cap": "round",
             "line-join": "round"
@@ -2931,7 +2767,6 @@ INSERT INTO map_layers(maplayerid, name, layerdefinitions, isoverlay, icon)
         },
         "source-layer": "admin"
     },{
-        "interactive": true,
         "minzoom": 5,
         "layout": {
             "icon-image": "{maki}-11",
@@ -2981,7 +2816,6 @@ INSERT INTO map_layers(maplayerid, name, layerdefinitions, isoverlay, icon)
         },
         "source-layer": "poi_label"
     },{
-        "interactive": true,
         "layout": {
             "symbol-placement": "line",
             "text-field": "{name_en}",
@@ -3032,7 +2866,6 @@ INSERT INTO map_layers(maplayerid, name, layerdefinitions, isoverlay, icon)
         },
         "source-layer": "road_label"
     },{
-        "interactive": true,
         "minzoom": 8,
         "layout": {
             "text-field": "{name_en}",
@@ -3083,7 +2916,6 @@ INSERT INTO map_layers(maplayerid, name, layerdefinitions, isoverlay, icon)
         },
         "source-layer": "place_label"
     },{
-        "interactive": true,
         "layout": {
             "text-field": "{name_en}",
             "text-font": [
@@ -3129,7 +2961,6 @@ INSERT INTO map_layers(maplayerid, name, layerdefinitions, isoverlay, icon)
         },
         "source-layer": "place_label"
     },{
-        "interactive": true,
         "layout": {
             "text-field": "{name_en}",
             "text-font": [
@@ -3490,12 +3321,84 @@ INSERT INTO report_templates(templateid, name, description, component, component
         "bearing": 0.0,
         "geocodePlaceholder": "Search",
         "geocoderVisible": true,
-        "resourceColor": null,
-        "resourceLineWidth": null,
-        "resourcePointSize": null,
+        "featureColor": null,
+        "featureLineWidth": null,
+        "featurePointSize": null,
         "featureEditingDisabled": true,
         "mapControlsHidden": false
     }');
 
 INSERT INTO report_templates(templateid, name, description, component, componentname, defaultconfig)
     VALUES ('50000000-0000-0000-0000-000000000003', 'Image Header Template', 'Image Header', 'reports/image', 'image-report', '{"nodes": []}');
+
+CREATE OR REPLACE VIEW vw_getgeoms AS
+    SELECT t.tileid,
+       t.resourceinstanceid,
+       n.nodeid,
+       st_transform(
+           ST_SetSRID(
+               st_geomfromgeojson((json_array_elements(t.tiledata::json -> n.nodeid::text -> 'features') -> 'geometry')::text),
+               4326
+           ), 900913)::geometry(Geometry,900913) AS geom,
+       n.name as node_name,
+       g.graphid,
+       g.name as graph_name
+      FROM tiles t
+    	LEFT JOIN nodes n ON t.nodegroupid = n.nodegroupid
+        LEFT JOIN graphs g ON n.graphid = g.graphid
+     WHERE (( SELECT count(*) AS count
+    		  FROM jsonb_object_keys(t.tiledata) jsonb_object_keys(jsonb_object_keys)
+    		 WHERE (jsonb_object_keys.jsonb_object_keys IN ( SELECT n_1.nodeid::text AS nodeid
+    				  FROM nodes n_1
+    				 WHERE n_1.datatype = 'geojson-feature-collection'::text)))) > 0 AND n.datatype = 'geojson-feature-collection'::text;
+
+INSERT INTO map_sources(name, source)
+    VALUES ('resources', '{
+        "type": "vector",
+        "tiles": ["/tileserver/resources/{z}/{x}/{y}.pbf"]
+    }');
+
+
+INSERT INTO map_layers(maplayerid, name, layerdefinitions, isoverlay, icon)
+   VALUES (public.uuid_generate_v1mc(), 'All Resources', '[
+       {
+           "id": "resources-fill",
+           "type": "fill",
+           "source": "resources",
+           "source-layer": "resources",
+           "layout": {
+               "visibility": "visible"
+           },
+           "filter": ["all", ["==", "$type", "Polygon"]],
+           "paint": {
+               "fill-color": "rgba(251, 96, 23, 0.5)"
+           }
+       },
+       {
+           "id": "resources-line",
+           "type": "line",
+           "source": "resources",
+           "source-layer": "resources",
+           "layout": {
+               "visibility": "visible"
+           },
+           "filter": ["all", ["==", "$type", "LineString"]],
+           "paint": {
+               "line-color": "rgba(251, 96, 23, 1)"
+           }
+       },
+       {
+           "id": "resources-point",
+           "type": "circle",
+           "source": "resources",
+           "source-layer": "resources",
+           "layout": {
+               "visibility": "visible"
+           },
+           "filter": ["all", ["==", "$type", "Point"]],
+           "paint": {
+               "circle-radius": 5,
+               "circle-color": "rgba(251, 96, 23, 1)"
+           }
+       }
+   ]', TRUE, 'fa fa-globe');

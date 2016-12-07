@@ -2,32 +2,44 @@ define(function() {
       var getDrawStyles = function(resource)
         {
           return [
-            {
-              "id": "gl-draw-point-active",
-              "type": "circle",
-              "filter": ["all", ["!=", "meta", "vertex"],
-                  ["==", "$type", "Point"],
-                  ["!=", "mode", "static"]
-              ],
-              "paint": {
-                  "circle-radius": 5,
-                  "circle-color": "#FFF"
-              },
-              "interactive": true
-          }, {
+          {
               "id": "gl-draw-point",
               "type": "circle",
-              "layout": {},
-              "filter": ["all", ["!in", "$type", "LineString", "Polygon"],
-                  ["!=", "mode", "static"]
+              "filter": ["all",
+                  ["!in", "$type", "LineString", "Polygon"],
+                  ["!=", "mode", "static"],
+                  ["!=", "active", 'true']
               ],
               "paint": {
-                  "circle-radius": resource.pointsize,
-                  "circle-color": resource.color,
-                  "circle-opacity": 0.8
-              },
-              "interactive": true
+                  "circle-radius": resource.pointsize(),
+                  "circle-color": resource.color()
+              }
           }, {
+            "id": "gl-draw-point-active-halo",
+            "type": "circle",
+            "filter": ["all", ["!=", "meta", "vertex"],
+                ["==", "$type", "Point"],
+                ["!=", "mode", "static"],
+                ["==", "active", "true"],
+            ],
+            "paint": {
+                "circle-radius": resource.pointsize() * 1.25,
+                "circle-color": "#FFF"
+            }
+        }, {
+              "id": "gl-draw-point-active",
+              "type": "circle",
+              "layout": {},
+              "filter": ["all",
+                  ["!in", "$type", "LineString", "Polygon"],
+                  ["!=", "mode", "static"],
+                  ["==", "active", 'true']
+              ],
+              "paint": {
+                  "circle-radius": resource.pointsize(),
+                  "circle-color": resource.color()
+              }
+          },{
               "id": "gl-draw-line",
               "type": "line",
               "filter": ["all", ["==", "$type", "LineString"],
@@ -38,11 +50,10 @@ define(function() {
                   "line-join": "round"
               },
               "paint": {
-                  "line-color": resource.color,
+                  "line-color": resource.color(),
                   // "line-dasharray": [0.2, 2],
-                  "line-width": resource.linewidth
-              },
-              "interactive": true
+                  "line-width": resource.linewidth()
+              }
           }, {
               "id": "gl-draw-polygon-fill",
               "type": "fill",
@@ -50,11 +61,10 @@ define(function() {
                   ["!=", "mode", "static"]
               ],
               "paint": {
-                  "fill-color": resource.color,
-                  "fill-outline-color": resource.color,
+                  "fill-color": resource.color(),
+                  "fill-outline-color": resource.color(),
                   "fill-opacity": 0.1
-              },
-              "interactive": true
+              }
           }, {
               "id": "gl-draw-polygon-stroke-active",
               "type": "line",
@@ -66,11 +76,10 @@ define(function() {
                   "line-join": "round"
               },
               "paint": {
-                  "line-color": resource.color,
+                  "line-color": resource.color(),
                   // "line-dasharray": [0.2, 2],
-                  "line-width": resource.linewidth
-              },
-              "interactive": true
+                  "line-width": resource.linewidth()
+              }
           }, {
               "id": "gl-draw-polygon-and-line-vertex-halo-active",
               "type": "circle",
@@ -79,10 +88,9 @@ define(function() {
                   ["!=", "mode", "static"]
               ],
               "paint": {
-                  "circle-radius": 5,
+                  "circle-radius": resource.pointsize() * 1.25,
                   "circle-color": "#FFF"
-              },
-              "interactive": true
+              }
           }, {
               "id": "gl-draw-polygon-and-line-vertex-active",
               "type": "circle",
@@ -91,10 +99,9 @@ define(function() {
                   ["!=", "mode", "static"]
               ],
               "paint": {
-                  "circle-radius": 3,
-                  "circle-color": resource.color,
-              },
-              "interactive": true
+                  "circle-radius": resource.pointsize(),
+                  "circle-color": resource.color(),
+              }
           }, {
               "id": "gl-draw-polygon-and-line-midpoint-halo-active",
               "type": "circle",
@@ -103,10 +110,9 @@ define(function() {
                   ["!=", "mode", "static"]
               ],
               "paint": {
-                  "circle-radius": 4,
+                  "circle-radius": resource.pointsize() * 1.25,
                   "circle-color": "#FFF"
-              },
-              "interactive": true
+              }
           }, {
               "id": "gl-draw-polygon-and-line-midpoint-active",
               "type": "circle",
@@ -115,28 +121,59 @@ define(function() {
                   ["!=", "mode", "static"]
               ],
               "paint": {
-                  "circle-radius": 2,
-                  "circle-color": resource.color,
-              },
-              "interactive": true
-          }, {
-              "id": "gl-draw-line-static",
-              "type": "line",
-              "filter": ["all", ["==", "$type", "LineString"],
-                  ["==", "mode", "active"]
-              ],
-              "layout": {
-                  "line-cap": "round",
-                  "line-join": "round"
-              },
-              "paint": {
-                  "line-color": "#000",
-                  "line-width": resource.linewidth
-              },
-              "interactive": true
+                  "circle-radius": resource.pointsize(),
+                  "circle-color": resource.color(),
+              }
           }
         ];
        }
 
-      return {getDrawStyles: getDrawStyles};
+      var getResourceModelStyles = function(resource){
+        return [
+              {
+                  "id": resource.maplayerid + "resources-fill",
+                  "type": "fill",
+                  "source": "resources",
+                  "source-layer": "resources",
+                  "layout": {
+                      "visibility": "visible"
+                  },
+                  "filter": ["all",
+                    ["==", "$type", "Polygon"],
+                    ["==", "graphid", resource.maplayerid]
+                  ],
+                  "paint": {
+                      "fill-color": resource.color
+                  }
+              },
+              {
+                  "id": resource.maplayerid + "resources-line",
+                  "type": "line",
+                  "source": "resources",
+                  "source-layer": "resources",
+                  "layout": {
+                      "visibility": "visible"
+                  },
+                  "filter": ["all", ["==", "$type", "LineString"],["==", "graphid", resource.maplayerid]],
+                  "paint": {
+                      "line-color": resource.color
+                  }
+              },
+              {
+                  "id": resource.maplayerid + "resources-point",
+                  "type": "circle",
+                  "source": "resources",
+                  "source-layer": "resources",
+                  "layout": {
+                      "visibility": "visible"
+                  },
+                  "filter": ["all", ["==", "$type", "Point"],["==", "graphid", resource.maplayerid]],
+                  "paint": {
+                      "circle-radius": 5,
+                      "circle-color": resource.color
+                  }
+              }];
+        }
+
+      return {getDrawStyles: getDrawStyles, getResourceModelStyles: getResourceModelStyles};
 });

@@ -178,22 +178,6 @@ class Migration(migrations.Migration):
        ),
 
         migrations.CreateModel(
-            name='Address',
-            fields=[
-                ('addressnum', models.TextField(null=True, blank=True)),
-                ('addressstreet', models.TextField(null=True, blank=True)),
-                ('vintage', models.TextField(null=True, blank=True)),
-                ('city', models.TextField(null=True, blank=True)),
-                ('postalcode', models.TextField(null=True, blank=True)),
-                ('addressesid', models.AutoField(serialize=False, primary_key=True)),
-                ('geometry', django.contrib.gis.db.models.fields.PointField(srid=4326, null=True, blank=True)),
-            ],
-            options={
-                'db_table': 'addresses',
-                'managed': True,
-            },
-        ),
-        migrations.CreateModel(
             name='GraphModel',
             fields=[
                 ('graphid', models.UUIDField(default=uuid.uuid1, serialize=False, primary_key=True)),
@@ -408,7 +392,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='FormXCard',
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=True)),
+                ('id', models.UUIDField(default=uuid.uuid1, primary_key=True, serialize=False)),
                 ('card', models.ForeignKey(to='models.CardModel', db_column='cardid')),
                 ('form', models.ForeignKey(to='models.Form', db_column='formid')),
                 ('sortorder', models.IntegerField(blank=True, null=True, default=None)),
@@ -438,6 +422,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='FunctionXGraph',
             fields=[
+                ('id', models.UUIDField(primary_key=True, default=uuid.uuid1, serialize=False)),
                 ('function', models.ForeignKey(to='models.Function', db_column='functionid')),
                 ('graph', models.ForeignKey(to='models.GraphModel', db_column='graphid')),
                 ('config', JSONField(blank=True, null=True, db_column='config')),
@@ -524,32 +509,6 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            name='Overlay',
-            fields=[
-                ('overlaytyp', models.TextField(null=True, blank=True)),
-                ('overlayval', models.TextField(null=True, blank=True)),
-                ('overlayid', models.AutoField(serialize=False, primary_key=True)),
-                ('geometry', django.contrib.gis.db.models.fields.PolygonField(srid=4326, null=True, blank=True)),
-            ],
-            options={
-                'db_table': 'overlays',
-                'managed': True,
-            },
-        ),
-        migrations.CreateModel(
-            name='Parcel',
-            fields=[
-                ('parcelapn', models.TextField(null=True, blank=True)),
-                ('vintage', models.TextField(null=True, blank=True)),
-                ('parcelsid', models.AutoField(serialize=False, primary_key=True)),
-                ('geometry', django.contrib.gis.db.models.fields.PolygonField(srid=4326, null=True, blank=True)),
-            ],
-            options={
-                'db_table': 'parcels',
-                'managed': True,
-            },
-        ),
-        migrations.CreateModel(
             name='Relation',
             fields=[
                 ('relationid', models.UUIDField(default=uuid.uuid1, primary_key=True, serialize=False)),
@@ -620,7 +579,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ResourceXResource',
             fields=[
-                ('resourcexid', models.AutoField(primary_key=True, serialize=False)),
+                ('resourcexid', models.UUIDField(default=uuid.uuid1, primary_key=True, serialize=False)),
                 ('notes', models.TextField(blank=True, null=True)),
                 ('datestarted', models.DateField(blank=True, null=True)),
                 ('dateended', models.DateField(blank=True, null=True)),
@@ -678,7 +637,7 @@ class Migration(migrations.Migration):
             name='MapLayers',
             fields=[
                 ('maplayerid', models.UUIDField(default=uuid.uuid1, primary_key=True, serialize=False)),
-                ('name', models.TextField()),
+                ('name', models.TextField(unique=True)),
                 ('layerdefinitions', JSONField(blank=True, db_column='layerdefinitions', null=True)),
                 ('isoverlay', models.BooleanField(default=False)),
                 ('icon', models.TextField(default=None)),
@@ -692,11 +651,24 @@ class Migration(migrations.Migration):
             name='MapSources',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.TextField()),
+                ('name', models.TextField(unique=True)),
                 ('source', JSONField(blank=True, db_column='source', null=True)),
             ],
             options={
                 'db_table': 'map_sources',
+                'managed': True,
+            },
+        ),
+        migrations.CreateModel(
+            name='TileserverLayers',
+            fields=[
+                ('name', models.TextField(unique=True)),
+                ('path', models.TextField()),
+                ('map_layer', models.ForeignKey(db_column='map_layerid', to='models.MapLayers')),
+                ('map_source', models.ForeignKey(db_column='map_sourceid', to='models.MapSources')),
+            ],
+            options={
+                'db_table': 'tileserver_layers',
                 'managed': True,
             },
         ),

@@ -7,6 +7,7 @@
       "forms_x_cards": [],
       "reports": [],
       "iconclass": "fa fa-language",
+      "functions": [],
       "domain_connections": [
         {
           "ontology_property": "P73_has_translation",
@@ -1708,7 +1709,7 @@
       ],
       "nodegroups": [
         {
-          "cardinality": "1",
+          "cardinality": "n",
           "legacygroupid": null,
           "nodegroupid": "d08dd1f2-9aff-11e6-84a5-026d961c88e6",
           "parentnodegroup_id": null
@@ -1720,7 +1721,6 @@
       "version": "",
       "nodes": [
         {
-          "functions": [],
           "graph_id": "d08dd1f3-9aff-11e6-84a5-026d961c88e6",
           "description": "Represents a single node in a graph",
           "istopnode": false,
@@ -1735,7 +1735,6 @@
           "name": "Language_Type"
         },
         {
-          "functions": [],
           "graph_id": "d08dd1f3-9aff-11e6-84a5-026d961c88e6",
           "description": "",
           "istopnode": true,
@@ -1765,11 +1764,20 @@
       "mappointsize": 4,
       "graphid": "d08dd1f3-9aff-11e6-84a5-026d961c88e6",
       "name": "Language",
-      "cards_x_nodes_x_widgets": [],
+      "cards_x_nodes_x_widgets": [
+        {
+          "widget_id": "10000000-0000-0000-0000-000000000002",
+          "card_id": "d08dd1f5-9aff-11e6-84a5-026d961c88e6",
+          "label": "Language",
+          "node_id": "53f6b7cb-9b00-11e6-84a5-026d961c88e6",
+          "sortorder": 0,
+          "config": "{\"placeholder\":\"Select language\",\"options\":[],\"label\":\"Language\"}",
+          "id": "37e528cc-b8f2-11e6-84a5-026d961c88e6"
+        }
+      ],
       "cards": [
         {
           "itemtext": null,
-          "functions": [],
           "graph_id": "d08dd1f3-9aff-11e6-84a5-026d961c88e6",
           "description": "This branch describes the language of an Information Resource.",
           "name": "Language",
@@ -1781,11 +1789,10 @@
           "cardid": "d08dd1f5-9aff-11e6-84a5-026d961c88e6",
           "helptitle": null,
           "active": true,
-          "instructions": null
+          "instructions": "Select language of the information resource."
         }
       ],
       "root": {
-        "functions": [],
         "graph_id": "d08dd1f3-9aff-11e6-84a5-026d961c88e6",
         "description": "",
         "istopnode": true,
@@ -1799,5 +1806,11 @@
       "isactive": true,
       "deploymentdate": null
     }
-  ]
+  ],
+  "metadata": {
+    "git hash": "423bab3 2016-11-16 12:05:13 -0800",
+    "db": "PostgreSQL 9.6.0 on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 5.3.1-14ubuntu2) 5.3.1 20160413, 64-bit",
+    "os version": "4.4.0-45-generic",
+    "os": "Linux"
+  }
 }

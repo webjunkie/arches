@@ -10,7 +10,7 @@
           "card_id": "4ba33ef0-a5fc-11e6-a283-6c4008b05c4c",
           "sortorder": 0,
           "form_id": "7a5a95f3-a5fe-11e6-bcf7-6c4008b05c4c",
-          "id": 2
+          "id": "9a087d68-b5a5-11e6-be00-14109fd34195"
         }
       ],
       "reports": [
@@ -132,10 +132,10 @@
             }
           },
           "config": {
-            "resourcePointSize": 6,
+            "featurePointSize": 6,
             "bearing": 0,
-            "resourceLineWidth": 2,
-            "resourceColor": "rgba(55,32,196,0.85)",
+            "featureLineWidth": 2,
+            "featureColor": "rgba(55,32,196,0.85)",
             "centerX": -122.39977301055693,
             "geocodeProvider": "MapzenGeocoder",
             "geocoderVisible": true,
@@ -2722,7 +2722,7 @@
           "widget_id": "10000000-0000-0000-0000-000000000001",
           "node_id": "4ba3340c-a5fc-11e6-a7b7-6c4008b05c4c",
           "sortorder": 0,
-          "config": "{\"width\":\"100%\",\"placeholder\":\"Enter text\",\"maxLength\":128,\"label\":\"Parcel\"}",
+          "config": "{\"width\":\"100%\",\"placeholder\":\"Enter text\",\"maxLength\":10,\"inputMask\":\"000-000000\",\"label\":\"Parcel\"}",
           "id": "5de02af0-a609-11e6-8c6f-80e6500ee4e4"
         }
       ],

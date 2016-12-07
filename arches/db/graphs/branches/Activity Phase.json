@@ -7,6 +7,7 @@
       "forms_x_cards": [],
       "reports": [],
       "iconclass": "fa fa-tasks",
+      "functions": [],
       "domain_connections": [
         {
           "ontology_property": "P7i_witnessed",
@@ -2044,7 +2045,7 @@
       ],
       "nodegroups": [
         {
-          "cardinality": "1",
+          "cardinality": "n",
           "legacygroupid": null,
           "nodegroupid": "4ff978b8-9bd4-11e6-84a5-026d961c88e6",
           "parentnodegroup_id": null
@@ -2062,7 +2063,18 @@
       "version": "",
       "nodes": [
         {
-          "functions": [],
+          "graph_id": "4ff978b9-9bd4-11e6-84a5-026d961c88e6",
+          "description": "Represents a single node in a graph",
+          "istopnode": false,
+          "ontologyclass": "E49_Time_Appellation",
+          "nodeid": "242f4feb-9bd5-11e6-84a5-026d961c88e6",
+          "datatype": "date",
+          "nodegroup_id": "e1776dff-9bd4-11e6-84a5-026d961c88e6",
+          "config": null,
+          "parentproperty": "P78_is_identified_by",
+          "name": "From Date"
+        },
+        {
           "graph_id": "4ff978b9-9bd4-11e6-84a5-026d961c88e6",
           "description": "Represents a single node in a graph",
           "istopnode": false,
@@ -2075,7 +2087,6 @@
           "name": "Time Span Phase"
         },
         {
-          "functions": [],
           "graph_id": "4ff978b9-9bd4-11e6-84a5-026d961c88e6",
           "description": "",
           "istopnode": true,
@@ -2088,20 +2099,6 @@
           "name": "Activity Phase"
         },
         {
-          "functions": [],
-          "graph_id": "4ff978b9-9bd4-11e6-84a5-026d961c88e6",
-          "description": "Represents a single node in a graph",
-          "istopnode": false,
-          "ontologyclass": "E49_Time_Appellation",
-          "nodeid": "361c725b-9bd5-11e6-84a5-026d961c88e6",
-          "datatype": "date",
-          "nodegroup_id": "e1776dff-9bd4-11e6-84a5-026d961c88e6",
-          "config": null,
-          "parentproperty": "P78_is_identified_by",
-          "name": "To Date"
-        },
-        {
-          "functions": [],
           "graph_id": "4ff978b9-9bd4-11e6-84a5-026d961c88e6",
           "description": "Represents a single node in a graph",
           "istopnode": false,
@@ -2114,7 +2111,6 @@
           "name": "Phase Type Assignment"
         },
         {
-          "functions": [],
           "graph_id": "4ff978b9-9bd4-11e6-84a5-026d961c88e6",
           "description": "Represents a single node in a graph",
           "istopnode": false,
@@ -2129,17 +2125,16 @@
           "name": "Activity Type"
         },
         {
-          "functions": [],
           "graph_id": "4ff978b9-9bd4-11e6-84a5-026d961c88e6",
           "description": "Represents a single node in a graph",
           "istopnode": false,
           "ontologyclass": "E49_Time_Appellation",
-          "nodeid": "242f4feb-9bd5-11e6-84a5-026d961c88e6",
+          "nodeid": "361c725b-9bd5-11e6-84a5-026d961c88e6",
           "datatype": "date",
           "nodegroup_id": "e1776dff-9bd4-11e6-84a5-026d961c88e6",
           "config": null,
           "parentproperty": "P78_is_identified_by",
-          "name": "From Date"
+          "name": "To Date"
         }
       ],
       "ontology_id": "e6e8db47-2ccf-11e6-927e-b8f6b115d7dd",
@@ -2157,15 +2152,6 @@
         {
           "graph_id": "4ff978b9-9bd4-11e6-84a5-026d961c88e6",
           "name": null,
-          "edgeid": "361c725c-9bd5-11e6-84a5-026d961c88e6",
-          "domainnode_id": "10146735-9bd5-11e6-84a5-026d961c88e6",
-          "rangenode_id": "361c725b-9bd5-11e6-84a5-026d961c88e6",
-          "ontologyproperty": "P78_is_identified_by",
-          "description": null
-        },
-        {
-          "graph_id": "4ff978b9-9bd4-11e6-84a5-026d961c88e6",
-          "name": null,
           "edgeid": "242f4fec-9bd5-11e6-84a5-026d961c88e6",
           "domainnode_id": "10146735-9bd5-11e6-84a5-026d961c88e6",
           "rangenode_id": "242f4feb-9bd5-11e6-84a5-026d961c88e6",
@@ -2175,10 +2161,10 @@
         {
           "graph_id": "4ff978b9-9bd4-11e6-84a5-026d961c88e6",
           "name": null,
-          "edgeid": "fb6498f6-9bd4-11e6-84a5-026d961c88e6",
-          "domainnode_id": "e1776dff-9bd4-11e6-84a5-026d961c88e6",
-          "rangenode_id": "fb6498f5-9bd4-11e6-84a5-026d961c88e6",
-          "ontologyproperty": "P2_has_type",
+          "edgeid": "361c725c-9bd5-11e6-84a5-026d961c88e6",
+          "domainnode_id": "10146735-9bd5-11e6-84a5-026d961c88e6",
+          "rangenode_id": "361c725b-9bd5-11e6-84a5-026d961c88e6",
+          "ontologyproperty": "P78_is_identified_by",
           "description": null
         },
         {
@@ -2189,17 +2175,53 @@
           "rangenode_id": "e1776dff-9bd4-11e6-84a5-026d961c88e6",
           "ontologyproperty": "P41i_was_classified_by",
           "description": null
+        },
+        {
+          "graph_id": "4ff978b9-9bd4-11e6-84a5-026d961c88e6",
+          "name": null,
+          "edgeid": "fb6498f6-9bd4-11e6-84a5-026d961c88e6",
+          "domainnode_id": "e1776dff-9bd4-11e6-84a5-026d961c88e6",
+          "rangenode_id": "fb6498f5-9bd4-11e6-84a5-026d961c88e6",
+          "ontologyproperty": "P2_has_type",
+          "description": null
         }
       ],
       "maplinewidth": 1,
       "mappointsize": 3,
       "graphid": "4ff978b9-9bd4-11e6-84a5-026d961c88e6",
       "name": "Activity Phase",
-      "cards_x_nodes_x_widgets": [],
+      "cards_x_nodes_x_widgets": [
+        {
+          "widget_id": "10000000-0000-0000-0000-000000000002",
+          "card_id": "f87bf08a-9bd4-11e6-84a5-026d961c88e6",
+          "label": "Activity Type",
+          "node_id": "fb6498f5-9bd4-11e6-84a5-026d961c88e6",
+          "sortorder": 0,
+          "config": "{\"placeholder\":\"Select an option\",\"options\":[],\"label\":\"Activity Type\"}",
+          "id": "cdb6a560-b8ea-11e6-84a5-026d961c88e6"
+        },
+        {
+          "widget_id": "10000000-0000-0000-0000-000000000004",
+          "card_id": "f87bf08a-9bd4-11e6-84a5-026d961c88e6",
+          "label": "To Date",
+          "node_id": "361c725b-9bd5-11e6-84a5-026d961c88e6",
+          "sortorder": 1,
+          "config": "{\"maxDate\":false,\"viewMode\":\"days\",\"dateFormat\":\"YYYY-MM-DD\",\"placeholder\":\"Enter date\",\"minDate\":false,\"label\":\"To Date\"}",
+          "id": "cdb6a55e-b8ea-11e6-84a5-026d961c88e6"
+        },
+        {
+          "widget_id": "10000000-0000-0000-0000-000000000004",
+          "card_id": "f87bf08a-9bd4-11e6-84a5-026d961c88e6",
+          "label": "From Date",
+          "node_id": "242f4feb-9bd5-11e6-84a5-026d961c88e6",
+          "sortorder": 2,
+          "config": "{\"maxDate\":false,\"viewMode\":\"days\",\"dateFormat\":\"YYYY-MM-DD\",\"placeholder\":\"Enter date\",\"minDate\":false,\"label\":\"From Date\"}",
+          "id": "cdb6a55f-b8ea-11e6-84a5-026d961c88e6"
+        }
+      ],
       "cards": [
         {
           "itemtext": null,
-          "functions": [],
           "graph_id": "4ff978b9-9bd4-11e6-84a5-026d961c88e6",
           "description": "Describes the time span and type of an Activity Resource.",
           "name": "Activity Phase",
@@ -2215,7 +2237,6 @@
         },
         {
           "itemtext": null,
-          "functions": [],
           "graph_id": "4ff978b9-9bd4-11e6-84a5-026d961c88e6",
           "description": "Represents a single node in a graph",
           "name": "Phase Type Assignment",
@@ -2223,7 +2244,7 @@
           "visible": true,
           "helpenabled": false,
           "helptext": null,
-          "sortorder": null,
+          "sortorder": 0,
           "cardid": "f87bf08a-9bd4-11e6-84a5-026d961c88e6",
           "helptitle": null,
           "active": true,
@@ -2231,7 +2252,6 @@
         }
       ],
       "root": {
-        "functions": [],
         "graph_id": "4ff978b9-9bd4-11e6-84a5-026d961c88e6",
         "description": "",
         "istopnode": true,
@@ -2245,5 +2265,11 @@
       "isactive": true,
       "deploymentdate": null
     }
-  ]
+  ],
+  "metadata": {
+    "git hash": "423bab3 2016-11-16 12:05:13 -0800",
+    "db": "PostgreSQL 9.6.0 on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 5.3.1-14ubuntu2) 5.3.1 20160413, 64-bit",
+    "os version": "4.4.0-45-generic",
+    "os": "Linux"
+  }
 }
