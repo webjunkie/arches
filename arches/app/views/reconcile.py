@@ -29,7 +29,7 @@ metadata = {
     "name": "Arches Reconciliation Service",
     "identifierSpace": "",
     "schemaSpace": "",
-    "defaultTypes": [{"id": "/people/person", "name" : "Node Name"}]
+    "defaultTypes": [{"id": "/arches/arches", "name" : "Node Name"}]
     }
 
 
@@ -44,8 +44,6 @@ def search(query):
 
     # Search person records for matches.
     for r in records:
-
-        # print r['label']
         if query.split('.')[0].lower().replace('_', ' ') == r:
             matches.append({
                     "id": r,
