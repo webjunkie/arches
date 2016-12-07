@@ -20,8 +20,7 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.conf.urls.i18n import patterns
-from arches.app.views import concept, entity, main, map, resources, search, config, graph, tileserver, reconciliation
-
+from arches.app.views import concept, entity, main, map, resources, search, config, graph, tileserver, reconcile
 from arches.app.views.graph import GraphManagerView, GraphSettingsView, GraphDataView, DatatypeTemplateView, CardManagerView, CardView, FormManagerView, FormView, ReportManagerView, ReportEditorView, FunctionManagerView
 from arches.app.views.resource import ResourceEditorView, ResourceListView, ResourceData, ResourceReportView
 from arches.app.views.concept import RDMView
