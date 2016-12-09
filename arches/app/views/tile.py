@@ -32,6 +32,18 @@ from tileserver import clean_resource_cache
 class TileData(View):
     action = 'update_tile'
 
+    def get(self, request):
+        from arches.app.graph import Graph
+        if self.action == 'get_blank_tile':
+            nodeid = request.GET.get('nodeid', None)
+            node = models.Node.objects.get(pk=nodeid)
+            rootnode = models.Node.objects.get(pk=node.nodegroup_id)
+            graph = Graph.objects.get(pk=node.graph_id)
+            for node in graph.get_parent_nodes_and_edges(rootnode)['nodes']:
+                if node.nodegroup is not None and node.nodegroup_id != nodegroup_id:
+                    # do something
+        return JSONResponse(nodeid)
+
     def post(self, request):
         if self.action == 'update_tile':
             json = request.POST.get('data', None)
@@ -98,13 +110,6 @@ class TileData(View):
                 tile = models.Tile.objects.get(tileid = data['tileid'])
                 clean_resource_cache(tile)
                 tile.delete()
-
-                # # delete the parent tile if it's not reference by any child tiles any more
-                # if(tile.parenttile_id is not None):
-                #     if models.Tile.objects.filter(parenttile_id=tile.parenttile_id).count() == 0:
-                #         parentTile = models.Tile.objects.filter(tileid=tile.parenttile_id)
-                #         ret.append(parentTile)
-                #         parentTile.delete()
 
             return JSONResponse(ret)
 
