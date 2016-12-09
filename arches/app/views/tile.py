@@ -33,16 +33,25 @@ class TileData(View):
     action = 'update_tile'
 
     def get(self, request):
-        from arches.app.graph import Graph
+        from arches.app.models.graph import Graph
+        from arches.app.models.card import Card
+        from arches.app.models.forms import Form
         if self.action == 'get_blank_tile':
+            ret = {}
             nodeid = request.GET.get('nodeid', None)
             node = models.Node.objects.get(pk=nodeid)
             rootnode = models.Node.objects.get(pk=node.nodegroup_id)
             graph = Graph.objects.get(pk=node.graph_id)
+
+            card_container_rootnode = rootnode
             for node in graph.get_parent_nodes_and_edges(rootnode)['nodes']:
-                if node.nodegroup is not None and node.nodegroup_id != nodegroup_id:
-                    # do something
-        return JSONResponse(nodeid)
+                if node.nodegroup is not None and node.nodegroup_id != rootnode.nodegroup_id:
+                    card_container_rootnode = models.Node.objects.get(pk=node.nodegroup_id)
+
+            card_obj = JSONSerializer().serializeToPython(Card.objects.get(nodegroup_id=card_container_rootnode.nodegroup_id))
+            ret = Form.get_blank_tile(card_obj, resourceid=None)
+            
+            return JSONResponse(ret)
 
     def post(self, request):
         if self.action == 'update_tile':
