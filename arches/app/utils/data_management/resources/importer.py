@@ -26,52 +26,74 @@ from arches.app.models.models import ResourceXResource
 from arches.app.models.models import NodeGroup
 
 
-def import_business_data(business_data):
-    if type(business_data) == dict and business_data['resources']:
-        for resource in business_data['resources']:
-            if resource['resourceinstance'] != None:
-                resource['resourceinstance']['resourceinstanceid'] = uuid.UUID(str(resource['resourceinstance']['resourceinstanceid']))
-                resource['resourceinstance']['graphid'] = uuid.UUID(str(resource['resourceinstance']['graph_id']))
+def replace_source_nodeid(tile_data, mapping):
+    for row in mapping:
+        for key in tile_data:
+            if row['sourcenodeid'] == key:
+                tile_data[row['targetnodeid']] = tile_data[key]
+                del tile_data[key]
+    return tile_data
 
-                resourceinstance = ResourceInstance.objects.update_or_create(
-                    resourceinstanceid = resource['resourceinstance']['resourceinstanceid'],
-                    graph_id = resource['resourceinstance']['graphid'],
-                    resourceinstancesecurity = resource['resourceinstance']['resourceinstancesecurity']
-                )
 
-            if resource['tiles'] != []:
-                for tile in resource['tiles']:
-                    tile['parenttile_id'] = uuid.UUID(str(tile['parenttile_id'])) if tile['parenttile_id'] else None
-                    tile['nodegroup_id'] = NodeGroup(uuid.UUID(str(tile['nodegroup_id']))) if tile['nodegroup_id'] else None
-                    tile['resourceinstance_id'] = ResourceInstance(uuid.UUID(str(tile['resourceinstance_id'])))
-                    tile['tileid'] = uuid.UUID(str(tile['tileid']))
+def import_business_data(business_data, mapping=None):
+    if mapping == None:
+        if type(business_data) == dict and business_data['resources']:
+            for resource in business_data['resources']:
+                if resource['resourceinstance'] != None:
+                    resource['resourceinstance']['resourceinstanceid'] = uuid.UUID(str(resource['resourceinstance']['resourceinstanceid']))
+                    resource['resourceinstance']['graphid'] = uuid.UUID(str(resource['resourceinstance']['graph_id']))
 
-                    tile = Tile.objects.update_or_create(
-                        resourceinstance = tile['resourceinstance_id'],
-                        parenttile = Tile(uuid.UUID(str(tile['parenttile_id']))) if tile['parenttile_id'] else None,
-                        nodegroup = tile['nodegroup_id'],
-                        tileid = tile['tileid'],
-                        data = tile['data']
+                    resourceinstance = ResourceInstance.objects.update_or_create(
+                        resourceinstanceid = resource['resourceinstance']['resourceinstanceid'],
+                        graph_id = resource['resourceinstance']['graphid'],
+                        resourceinstancesecurity = resource['resourceinstance']['resourceinstancesecurity']
                     )
 
-    if type(business_data) == dict and business_data['relations']:
-        for relation in business_data['relations']:
-            relation['resourcexid'] = uuid.UUID(str(relation['resourcexid']))
-            relation['resourceinstanceidfrom'] = ResourceInstance(uuid.UUID(str(relation['resourceinstanceidfrom'])))
-            relation['resourceinstanceidto'] = ResourceInstance(uuid.UUID(str(relation['resourceinstanceidto'])))
-            relation['relationshiptype'] = uuid.UUID(str(relation['relationshiptype']))
+                if resource['tiles'] != []:
+                    for tile in resource['tiles']:
+                        tile['parenttile_id'] = uuid.UUID(str(tile['parenttile_id'])) if tile['parenttile_id'] else None
+                        tile['nodegroup_id'] = NodeGroup(uuid.UUID(str(tile['nodegroup_id']))) if tile['nodegroup_id'] else None
+                        tile['resourceinstance_id'] = ResourceInstance(uuid.UUID(str(tile['resourceinstance_id'])))
+                        tile['tileid'] = uuid.UUID(str(tile['tileid']))
 
-            relation = ResourceXResource.objects.update_or_create(
-                resourcexid = relation['resourcexid'],
-                resourceinstanceidfrom = relation['resourceinstanceidfrom'],
-                resourceinstanceidto = relation['resourceinstanceidto'],
-                notes = relation['notes'],
-                relationshiptype = relation['relationshiptype'],
-                datestarted = relation['datestarted'],
-                dateended = relation['dateended']
-            )
-            # print vars(relation)
-            relation.update_or_create()
+                        tile = Tile.objects.update_or_create(
+                            resourceinstance = tile['resourceinstance_id'],
+                            parenttile = Tile(uuid.UUID(str(tile['parenttile_id']))) if tile['parenttile_id'] else None,
+                            nodegroup = tile['nodegroup_id'],
+                            tileid = tile['tileid'],
+                            data = tile['data']
+                        )
+
+        if type(business_data) == dict and business_data['relations']:
+            for relation in business_data['relations']:
+                relation['resourcexid'] = uuid.UUID(str(relation['resourcexid']))
+                relation['resourceinstanceidfrom'] = ResourceInstance(uuid.UUID(str(relation['resourceinstanceidfrom'])))
+                relation['resourceinstanceidto'] = ResourceInstance(uuid.UUID(str(relation['resourceinstanceidto'])))
+                relation['relationshiptype'] = uuid.UUID(str(relation['relationshiptype']))
+
+                relation = ResourceXResource.objects.update_or_create(
+                    resourcexid = relation['resourcexid'],
+                    resourceinstanceidfrom = relation['resourceinstanceidfrom'],
+                    resourceinstanceidto = relation['resourceinstanceidto'],
+                    notes = relation['notes'],
+                    relationshiptype = relation['relationshiptype'],
+                    datestarted = relation['datestarted'],
+                    dateended = relation['dateended']
+                )
+                relation.update_or_create()
+    else:
+        if type(business_data) == dict and business_data['resources']:
+            for resource in business_data['resources']:
+                new_resource = {
+                    'tiles': [],
+                    'resourceinstance': {}
+                }
+
+                source_graph = resource['resourceinstance']['graph_id']
+                for tile in resource['tiles']:
+                    tile['data'] = replace_source_nodeid(tile['data'], mapping)
+
+
 
 
 class ResourceLoader(object):

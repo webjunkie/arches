@@ -18,6 +18,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import os
 import sys
+import csv
 import json
 from os.path import isfile, join
 from arches.app.utils.betterJSONSerializer import JSONSerializer, JSONDeserializer
@@ -33,11 +34,24 @@ class ArchesFileImporter(object):
 		self.graphs = ''
 		self.reference_data = ''
 		self.business_data = ''
+		self.mapping = ''
 
 		if not file:
 			file = settings.RESOURCE_GRAPH_LOCATIONS
 		else:
 			file = [file]
+
+		try:
+			mapping_file = [file[0].split('.')[0] + '.mapping']
+		except:
+			print "mapping file is missing or improperly named. Make sure you have mapping file with the same basename as your archesjson file and the extension .mapping"
+
+		for path in mapping_file:
+			if os.path.exists(path):
+				if isfile(join(path)):
+					self.mapping = csv.DictReader(open(mapping_file[0], 'r'), delimiter=',')
+				else:
+					self.mapping = None
 
 		for path in file:
 			if os.path.exists(path):
@@ -76,4 +90,4 @@ class ArchesFileImporter(object):
 	def import_all(self):
 		conceptImporter(self.reference_data)
 		resourceGraphImporter(self.graphs)
-		businessDataImporter(self.business_data)
+		businessDataImporter(self.business_data, self.mapping)
