@@ -99,13 +99,6 @@ class TileData(View):
                 clean_resource_cache(tile)
                 tile.delete()
 
-                # # delete the parent tile if it's not reference by any child tiles any more
-                # if(tile.parenttile_id is not None):
-                #     if models.Tile.objects.filter(parenttile_id=tile.parenttile_id).count() == 0:
-                #         parentTile = models.Tile.objects.filter(tileid=tile.parenttile_id)
-                #         ret.append(parentTile)
-                #         parentTile.delete()
-
             return JSONResponse(ret)
 
         return HttpResponseNotFound()

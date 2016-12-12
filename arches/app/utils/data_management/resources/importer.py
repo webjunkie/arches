@@ -13,18 +13,19 @@ from arches.app.models.resource import Resource
 from arches.app.models.models import Concept
 from arches.app.models.models import Value
 from arches.app.models.models import ResourceXResource
-from arches.app.models.concept import Concept
+from arches.app.models.models import Tile
+from arches.app.models.models import ResourceInstance
+from arches.app.models.models import NodeGroup
+from arches.app.models.graph import Graph
+from arches.app.models.card import Card
 from arches.app.models.forms import Form
+from arches.app.models.concept import Concept
 from arches.app.search.search_engine_factory import SearchEngineFactory
 from arches.management.commands import utils
 from optparse import make_option
 from formats.archesfile import ArchesReader
 from formats.archesjson import JsonReader
 from formats.shpfile import ShapeReader
-from arches.app.models.models import Tile
-from arches.app.models.models import ResourceInstance
-from arches.app.models.models import ResourceXResource
-from arches.app.models.models import NodeGroup
 
 
 def replace_source_nodeid(tile_data, mapping):
@@ -112,7 +113,7 @@ def import_business_data(business_data, mapping=None):
                         else:
                             ## Create a new tile if a nodeid is not in the original blank tile.
                             ## This could create too many tiles if there are noncontiguous keys in the source tile that can be grouped together.
-                            new_blank_tile = Form().get_blank_tile(nodeid, target_resource_model)
+                            new_blank_tile = Form.get_blank_tile_from_nodeid(nodeid, target_resource_model)
                             new_blank_tile[nodeid] = tile['data'][nodeid]
                             # new_blank_tile.save()
                         else:
