@@ -100,7 +100,6 @@ urlpatterns = [
     url(r'^report-templates/(?P<template>[a-zA-Z_-]*)', main.report_templates, name="report-templates"),
     url(r'^function-templates/(?P<template>[a-zA-Z_-]*)', main.function_templates, name="function-templates"),
     url(r'^tile$', TileData.as_view(action='update_tile'), name="tile"),
-    url(r'^tile/blank$', TileData.as_view(action='get_blank_tile'), name="get_blank_tile"),
     url(r'^tiles/reorder_tiles$', TileData.as_view(action='reorder_tiles'), name='reorder_tiles'),
     url(r'^templates/(?P<template>[a-zA-Z_\-./]*)', main.templates, name="templates"),
     url(r'^tileserver/*', tileserver.handle_request, name="tileserver"),

@@ -64,48 +64,40 @@ class Form(object):
                         for tile in JSONSerializer().serializeToPython(tiles.filter(parenttile_id=parentTile['tileid'])):
                             parentTile['tiles'][str(tile['nodegroup_id'])].append(tile)
 
+
         # get the blank tile data
         for form in self.forms:
             for cardgroup in form['cardgroups']:
-                b = Form.get_blank_tile(cardgroup, resourceid=resourceid)
-                self.blanks.update(b)
+                # add blank parent tile
+                parentTile = JSONSerializer().serializeToPython(models.Tile())
+                parentTile['tileid'] = ''
+                parentTile['parenttile_id'] = None
+                parentTile['resourceinstance_id'] = resourceid
+                parentTile['nodegroup_id'] = cardgroup['nodegroup_id']
+                parentTile['tiles'] = {}
+                parentTile['data'] = {}
+                for widget in cardgroup['widgets']:
+                    parentTile['data'][widget['node_id']] = ''
 
-    @staticmethod
-    def get_blank_tile(cardgroup, resourceid=None):
-        ret = {}
+                # add a blank tile for the cardgroup
+                self.blanks[parentTile['nodegroup_id']] = [parentTile]
 
-        # add blank parent tile
-        parentTile = JSONSerializer().serializeToPython(models.Tile())
-        parentTile['tileid'] = ''
-        parentTile['parenttile_id'] = None
-        parentTile['resourceinstance_id'] = resourceid
-        parentTile['nodegroup_id'] = cardgroup['nodegroup_id']
-        parentTile['tiles'] = {}
-        parentTile['data'] = {}
-        for widget in cardgroup['widgets']:
-            parentTile['data'][widget['node_id']] = ''
+                for card in cardgroup['cards']:
+                    # make a blank tile
+                    tile = JSONSerializer().serializeToPython(models.Tile())
+                    tile['tileid'] = ''
+                    tile['parenttile_id'] = None # parentTile
+                    tile['resourceinstance_id'] = resourceid
+                    tile['nodegroup_id'] = card['nodegroup_id']
+                    tile['tiles'] = {}
+                    tile['data'] = {}
+                    for widget in card['widgets']:
+                        tile['data'][widget['node_id']] = ''
 
-        # add a blank tile for the cardgroup
-        ret[parentTile['nodegroup_id']] = [parentTile]
-
-        for card in cardgroup['cards']:
-            # make a blank tile
-            tile = JSONSerializer().serializeToPython(models.Tile())
-            tile['tileid'] = ''
-            tile['parenttile_id'] = None # parentTile
-            tile['resourceinstance_id'] = resourceid
-            tile['nodegroup_id'] = card['nodegroup_id']
-            tile['tiles'] = {}
-            tile['data'] = {}
-            for widget in card['widgets']:
-                tile['data'][widget['node_id']] = ''
-
-            if(card['cardinality'] == '1'):
-                parentTile['tiles'][card['nodegroup_id']] = [tile]
-            else:
-                parentTile['tiles'][card['nodegroup_id']] = []
-            
-            # add a blank tile for each card 
-            ret[tile['nodegroup_id']] = [tile]
-
-        return ret
+                    if(card['cardinality'] == '1'):
+                        parentTile['tiles'][card['nodegroup_id']] = [tile]
+                    else:
+                        parentTile['tiles'][card['nodegroup_id']] = []
+                    
+                    # add a blank tile for each card 
+                    self.blanks[tile['nodegroup_id']] = [tile]
