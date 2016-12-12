@@ -14,6 +14,7 @@ from arches.app.models.models import Concept
 from arches.app.models.models import Value
 from arches.app.models.models import ResourceXResource
 from arches.app.models.concept import Concept
+from arches.app.models.forms import Form
 from arches.app.search.search_engine_factory import SearchEngineFactory
 from arches.management.commands import utils
 from optparse import make_option
@@ -89,9 +90,48 @@ def import_business_data(business_data, mapping=None):
                     'resourceinstance': {}
                 }
 
-                source_graph = resource['resourceinstance']['graph_id']
+                for row in mapping:
+                    if resource['resourceinstance']['graph_id'] == row['sourceresourcemodelid']:
+                        target_resource_model = row['targetresourcemodelid']
+
+
                 for tile in resource['tiles']:
                     tile['data'] = replace_source_nodeid(tile['data'], mapping)
+
+                    # lookup blank tile in blank tile list
+                    # if there:
+                    #     get
+                    # else:
+                    #     blank_tile = Form().get_blank_tile(tile['data'].keys()[0], target_resource_model)
+                    #     blank_tiles.append(targetnodeid: blanktile, targetnodeid: tile)
+
+                    for nodeid in tile['data'].keys():
+                        if nodeid in blank_tile:
+                            ## This should preserve grouping if the nodegroups are the same between source and target.
+                            blank_tile[nodeid] = tile['data'][nodeid]
+                        else:
+                            ## Create a new tile if a nodeid is not in the original blank tile.
+                            ## This could create too many tiles if there are noncontiguous keys in the source tile that can be grouped together.
+                            new_blank_tile = Form().get_blank_tile(nodeid, target_resource_model)
+                            new_blank_tile[nodeid] = tile['data'][nodeid]
+                            # new_blank_tile.save()
+                        else:
+                            print 'There is no target for this source node.'
+                    # blank_tile.save()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
