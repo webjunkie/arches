@@ -112,14 +112,16 @@ class Form(object):
 
     @staticmethod
     def get_blank_tile_from_nodeid(nodeid, resourceid=None):
+        tile = {}
+        tile['tileid'] = ''
+        tile['parenttile_id'] = None
+        tile['resourceinstance_id'] = resourceid
+        tile['sortorder'] = ''
+        tile['data'] = {}
+
         node = models.Node.objects.get(pk=nodeid)
-        rootnode = models.Node.objects.get(pk=node.nodegroup_id)
-        graph = Graph.objects.get(pk=node.graph_id)
+        tile['nodegroup_id'] = node.nodegroup_id
+        for node in models.Node.objects.filter(nodegroup=node.nodegroup_id):
+            tile['data'][str(node.nodeid)] = ''
 
-        card_container_rootnode = rootnode
-        for node in graph.get_parent_nodes_and_edges(rootnode)['nodes']:
-            if node.nodegroup is not None and node.nodegroup_id != rootnode.nodegroup_id:
-                card_container_rootnode = models.Node.objects.get(pk=node.nodegroup_id)
-
-        card_obj = JSONSerializer().serializeToPython(Card.objects.get(nodegroup_id=card_container_rootnode.nodegroup_id))
-        return Form.get_blank_tile(card_obj, resourceid=resourceid)
+        return tile
