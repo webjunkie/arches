@@ -149,7 +149,7 @@ class GraphManagerView(GraphBaseView):
                 'title': _('Branch Library'),
                 'search_placeholder': _('Find a graph branch')
             },
-            help_title='Using the Graph Designer',
+            help_title='Graph Designer Help',
             help_template='help/graph-designer-help.htm',
         )
 
@@ -245,6 +245,8 @@ class CardManagerView(GraphBaseView):
         context = self.get_context_data(
             main_script='views/graph/card-manager',
             branches=JSONSerializer().serialize(branch_graphs),
+            help_title='Card Manager Help',
+            help_template='help/card-designer-help.htm',
         )
 
         return render(request, 'views/graph/card-manager.htm', context)
@@ -283,6 +285,8 @@ class CardView(GraphBaseView):
             map_sources=map_sources,
             resource_graphs=resource_graphs,
             concept_collections=concept_collections,
+            help_title='Card Designer Help',
+            help_template='help/card-designer-help.htm',
         )
 
         return render(request, 'views/graph/card-configuration-manager.htm', context)
