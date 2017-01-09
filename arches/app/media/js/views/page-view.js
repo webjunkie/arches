@@ -74,6 +74,11 @@ define([
             $('[data-toggle="tooltip"]').tooltip();
             
             $('.ep-help-topic-toggle').click(function (){
+                if (this.text == "show demonstration") {
+                    $(this).text("hide demonstration");
+                } else if (this.text == "hide demonstration"){
+                    $(this).text("show demonstration");
+                } else {};
                 var sectionEl = $(this).closest('div');
                 contentEl = $(sectionEl).find('.ep-help-topic-content');
                 contentEl.slideToggle();
