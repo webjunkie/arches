@@ -245,8 +245,8 @@ class CardManagerView(GraphBaseView):
         context = self.get_context_data(
             main_script='views/graph/card-manager',
             branches=JSONSerializer().serialize(branch_graphs),
-            help_title='Card Manager Help',
-            help_template='help/card-designer-help.htm',
+            help_title='Configuring Data Entry Cards',
+            help_template='help/card-landing-help.htm',
         )
 
         return render(request, 'views/graph/card-manager.htm', context)
