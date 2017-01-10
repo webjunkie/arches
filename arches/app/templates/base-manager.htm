@@ -304,7 +304,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
                                         <!--Menu list item-->
                                         <li>
-                                            <a href="#">
+                                            <a href="{% url 'importexport_home'%}" data-bind="click: navigate.bind(this, '{% url 'importexport_home'%}') ">
                                                 <i class="fa fa-cloud-upload"></i>
                                                 <span class="menu-title">
                                                     <strong>Import/Export Manager</strong>

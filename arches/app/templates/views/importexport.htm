@@ -46,17 +46,17 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                 </div>
 
                 <!-- Find resource -->
-                <div class="find-widget" style="display: none;" data-bind="visible: showFind()">
+               <!--  <div class="find-widget" style="display: none;" data-bind="visible: showFind()">
                     <div>
                         <select data-bind="chosen: {width: '100%'}, value: graphId, options: resources, optionsText: 'name', optionsValue: 'graphid', optionsCaption: '{% trans "Select a resource..." %}', optionsAfterRender: setResourceOptionDisable"></select>
                     </div>
-                </div>
+                </div> -->
             </div>
 
             <!-- Resource/Graph Toggle -->
             <div class="resource-tools relative" data-bind="visible: !showFind()">
-                <a class="resource-grid-title" href="javascript:void(0);" data-bind="css: {'active': showResources()}, click: function () { showResources(true) }">{% trans "Import" %}</a>
-                <a class="resource-grid-title" href="javascript:void(0);" data-bind="css: {'active': !showResources()}, click: function () { showResources(false) }">{% trans "Export" %}</a>
+                <a class="resource-grid-title" href="javascript:void(0);">{% trans "Import" %}</a>
+                <a class="resource-grid-title" href="javascript:void(0);">{% trans "Export" %}</a>
             </div>
 
         </div>
@@ -93,7 +93,10 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                 <div id="import-file-upload-panel" class="import-file-upload-panel">
 
                     <!--Dropzonejs-->
-                    <form id="upload-dropzone" action="#" class="dropzone" data-bind="dropzone: dropzoneOptions" style="min-height: 200px;, height: 200px; padding: 10px;">
+
+
+
+                    <form id="upload-dropzone" action="#" class="dropzone" data-bind="dropzone: dropzoneOptions" style="min-height: 200px; height: 200px; padding: 10px;">
                         <div class="dz-default dz-message">
                             <div class="dz-icon icon-wrap icon-circle icon-wrap">
                                 <i class="fa fa-cloud-upload fa-3x"></i>
