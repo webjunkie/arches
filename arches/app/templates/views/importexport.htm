@@ -24,6 +24,12 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     {% trans "Import/Export" %}
 {% endblock title %}
 
+{% block css %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{{ STATIC_URL }}bower_components/dropzone/dist/min/dropzone.min.css" >
+{% endblock css %}
+
+
 {% block main_content %}
 <div class="scroll-y">
     <div class="graph-list-header" data-bind="css: {'alert-active': (alert() && alert().active())}">
@@ -93,9 +99,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                 <div id="import-file-upload-panel" class="import-file-upload-panel">
 
                     <!--Dropzonejs-->
-
-
-
                     <form id="upload-dropzone" action="#" class="dropzone" data-bind="dropzone: dropzoneOptions" style="min-height: 200px; height: 200px; padding: 10px;">
                         <div class="dz-default dz-message">
                             <div class="dz-icon icon-wrap icon-circle icon-wrap">
