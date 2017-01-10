@@ -24,7 +24,7 @@
     "underscore": "1.8.3",
     "jquery-validate": "1.11.1",
     "d3": "3.5.17",
-    "dropzone": "3.8.4",
+    "dropzone": "4.3.0",
     "summernote": "0.8.2",
     "knockout": "3.4.0",
     "moment": ">=2.10.5",

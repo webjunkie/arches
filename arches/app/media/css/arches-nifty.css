@@ -12,6 +12,7 @@
 @import url(../bower_components/summernote/dist/summernote.css);
 @import url(../bower_components/mapbox-gl/mapbox-gl.css);
 @import url(../bower_components/nouislider/distribute/nouislider.min.css);
+/*@import url(../bower_components/dropzone/dist/min/dropzone.min.css);*/
 @import url(../plugins/openlayers/ol.css);
 
 
@@ -85,7 +86,7 @@
 
 .navbar-top-links>.mega-dropdown>.dropdown-menu.mega-dropdown-menu {
     left: 50px;
-    max-width: 100%; 
+    max-width: 100%;
     top: 39px;
     right: -10px;
     height: 100vh;
@@ -5523,7 +5524,7 @@ span.basemap-unselected {
     height: 40px;
     background: #fafafa;
     border: 1px solid #dddddd;
-    border-left-width: 0px; 
+    border-left-width: 0px;
     padding-left: 6px;
     padding-top: 10px;
     z-index: 1;
