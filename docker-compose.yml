@@ -1,0 +1,45 @@
+version: '2'
+
+networks:
+  frontend:
+  backend:
+
+volumes:
+  datavolume:
+  pgdata:
+  esdata:
+
+services:
+  db:
+    image: mdillon/postgis:9.6
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+       - backend
+
+  elasticsearch:
+    image: elasticsearch:2.2.0
+    ports:
+      - "9200:9200"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    networks:
+       - backend
+
+  django:
+    build:
+      context: .
+      dockerfile: ./compose/django/Dockerfile-dev
+    command: python manage.py runserver 0.0.0.0:8000
+    environment:
+      - DJANGO_DATABASE_HOST=db
+      - DJANGO_ELASTICSEARCH_HOST=elasticsearch
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    networks:
+      - backend
+      - frontend
