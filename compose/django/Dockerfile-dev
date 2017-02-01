@@ -1,20 +1,20 @@
-FROM python:2.7-wheezy
+FROM python:2.7-slim
 
 ENV PYTHONUNBUFFERED 1
 
 RUN apt-get update && \
-    apt-get install -yq libgeos-dev libgdal-dev
+    apt-get install -yq curl
+RUN curl -sL https://deb.nodesource.com/setup_6.x | bash -
+RUN apt-get update && \
+    apt-get install -yq make python-software-properties \
+    libgeos-dev libgdal-dev libpq-dev nodejs libmapnik2.2 postgresql-client \
+    build-essential libssl-dev libffi-dev python-dev
 
 RUN ln -s /usr/lib/libgeos-3.4.2.so /usr/lib/libgeos.so
 
 # Requirements have to be pulled and installed here, otherwise caching won't work
 COPY ./arches/install /requirements
 RUN pip install -r /requirements/requirements.txt -r /requirements/requirements_dev.txt
-
-RUN apt-get install -yq postgresql-client
-
-RUN curl -sL https://deb.nodesource.com/setup_6.x | bash -
-RUN apt-get install -yq nodejs
 
 # nodejs
 RUN npm install -g bower
